@@ -1,0 +1,1 @@
+"""APTIVA AI — Core package."""
