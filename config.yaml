@@ -1,0 +1,53 @@
+# APTIVA AI — Configuration
+# All feature flags and runtime settings
+
+# ── Feature Flags ────────────────────────────────────────────────────────────
+enable_reasoning_enrichment: false   # Set true to use Gemini for reasoning
+enable_streamlit_demo: true
+enable_judge_mode: true
+enable_comparison_mode: true
+enable_hireability_index: true
+
+# ── Gemini Settings (only used when enable_reasoning_enrichment: true) ───────
+gemini_model: "gemini-2.5-pro"
+gemini_api_key: ""                   # Or set GEMINI_API_KEY env var
+
+# ── Data Settings ────────────────────────────────────────────────────────────
+data:
+  auto_extract_zip: true
+  data_dir: "./data"
+  # Expected files inside ZIP (discovered automatically)
+  expected_files:
+    - candidates.jsonl
+    - sample_candidates.json
+    - candidate_schema.json
+    - job_description.docx
+    - redrob_signals_doc.docx
+    - submission_spec.docx
+    - sample_submission.csv
+    - validate_submission.py
+
+# ── Ranking Settings ─────────────────────────────────────────────────────────
+ranking:
+  top_n: 100
+  tfidf_max_features: 8000
+  tfidf_ngram_range: [1, 2]
+  tfidf_min_df: 2
+
+# ── Scoring Weights ───────────────────────────────────────────────────────────
+scoring_weights:
+  title: 0.30
+  skills: 0.25
+  career: 0.20
+  experience: 0.10
+  education: 0.05
+  location: 0.05
+  engagement: 0.05
+
+# ── Hireability Index™ Weights ────────────────────────────────────────────────
+hireability_weights:
+  technical_fit: 0.35
+  career_relevance: 0.25
+  behavior_signals: 0.20
+  availability: 0.10
+  trust_score: 0.10
