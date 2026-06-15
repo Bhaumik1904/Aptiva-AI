@@ -1,0 +1,30 @@
+# Dataset files (Too large for GitHub)
+data/*.jsonl
+data/*.jsonl.gz
+data/*.zip
+data/*.csv
+data/*.docx
+*.docx
+submission.csv
+
+# Keep sample JSON and documentation
+!data/sample_candidates.json
+!data/candidate_schema.json
+!data/submission_metadata_template.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+env/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
