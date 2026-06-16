@@ -1,0 +1,4 @@
+# Place your hackathon dataset ZIP file in this directory.
+# APTIVA AI will automatically detect and extract it on first run.
+#
+# Expected: data/redrob_hackathon_dataset.zip (or any *.zip file)
