@@ -1,0 +1,1 @@
+"""APTIVA AI — UI package."""
