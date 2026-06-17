@@ -33,6 +33,31 @@ def render(state: dict):
         "🤖",
     )
 
+    # ── Candidate Selection ───────────────────────────────────────────────
+    results = state.get("results", [])
+    if not results:
+        st.info("No candidates loaded. Run the ranker first.")
+        return
+
+    candidate_options = {
+        f"#{r['rank']} · {r['candidate']['candidate_id']} · {r['candidate']['profile'].get('current_title', '')[:30]}": r["candidate"]["candidate_id"]
+        for r in results
+    }
+
+    _, col_sel = st.columns([2, 1])
+    with col_sel:
+        new_selection = st.selectbox(
+            "Select Candidate to Analyse",
+            list(candidate_options.keys()),
+            index=next((i for i, v in enumerate(candidate_options.values()) if v == state.get("selected_candidate_id")), 0),
+            key="ai_analysis_select",
+        )
+        if new_selection:
+            new_cid = candidate_options[new_selection]
+            if new_cid != state.get("selected_candidate_id"):
+                st.session_state["selected_candidate_id"] = new_cid
+                st.rerun()
+
     result = _get_selected_result(state)
     if not result:
         st.info("Select a candidate from the Rankings page to view AI Analysis.")

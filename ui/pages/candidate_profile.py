@@ -75,15 +75,15 @@ def render(state: dict):
             section_label("QUICK FACTS")
             qc1, qc2 = st.columns(2)
             with qc1:
-                st.markdown(_stat("Current Company", profile.get("current_company", "—")))
-                st.markdown(_stat("Industry", profile.get("current_industry", "—")))
-                st.markdown(_stat("Company Size", profile.get("current_company_size", "—")))
-                st.markdown(_stat("Location", profile.get("location", "—")))
+                st.markdown(_stat("Current Company", profile.get("current_company", "—")), unsafe_allow_html=True)
+                st.markdown(_stat("Industry", profile.get("current_industry", "—")), unsafe_allow_html=True)
+                st.markdown(_stat("Company Size", profile.get("current_company_size", "—")), unsafe_allow_html=True)
+                st.markdown(_stat("Location", profile.get("location", "—")), unsafe_allow_html=True)
             with qc2:
-                st.markdown(_stat("Notice Period", f"{signals.get('notice_period_days', '—')} days"))
-                st.markdown(_stat("Open to Work", "Yes ✓" if signals.get("open_to_work_flag") else "No"))
-                st.markdown(_stat("Work Mode Preference", signals.get("preferred_work_mode", "—")))
-                st.markdown(_stat("Willing to Relocate", "Yes" if signals.get("willing_to_relocate") else "No"))
+                st.markdown(_stat("Notice Period", f"{signals.get('notice_period_days', '—')} days"), unsafe_allow_html=True)
+                st.markdown(_stat("Open to Work", "Yes ✓" if signals.get("open_to_work_flag") else "No"), unsafe_allow_html=True)
+                st.markdown(_stat("Work Mode Preference", signals.get("preferred_work_mode", "—")), unsafe_allow_html=True)
+                st.markdown(_stat("Willing to Relocate", "Yes" if signals.get("willing_to_relocate") else "No"), unsafe_allow_html=True)
 
     # ── TAB 2: Career History ─────────────────────────────────────────────
     with tab_career:
@@ -209,11 +209,7 @@ def _get_selected_result(state: dict):
 
 
 def _stat(label: str, value: str) -> str:
-    return f"""
-<div style="margin:0.375rem 0">
-  <span style="font-size:0.75rem;color:#86868B;font-weight:500">{label}</span>
-  <div style="font-size:0.875rem;color:#1D1D1F;font-weight:500">{value}</div>
-</div>"""
+    return f'<div style="margin:0.375rem 0"><span style="font-size:0.75rem;color:#86868B;font-weight:500">{label}</span><div style="font-size:0.875rem;color:#1D1D1F;font-weight:500">{value}</div></div>'
 
 
 def _render_job_card(job: dict, index: int):
@@ -225,13 +221,7 @@ def _render_job_card(job: dict, index: int):
     desc = job.get("description", "")
     with st.expander(f"**{job.get('title','')}** at {job.get('company','')} · {duration_str}", expanded=(index == 0)):
         st.markdown(
-            f"""
-<div style="display:flex;gap:1.5rem;font-size:0.8125rem;color:#86868B;margin-bottom:0.75rem">
-  <span>📅 {job.get('start_date','?')[:7]} → {job.get('end_date','Present')[:7] if job.get('end_date') else 'Present'}</span>
-  <span>🏢 {job.get('company_size','?')}</span>
-  <span>🏭 {job.get('industry','?')}</span>
-</div>
-<div style="font-size:0.9rem;color:#1D1D1F;line-height:1.65">{desc}</div>""",
+            f'<div style="display:flex;gap:1.5rem;font-size:0.8125rem;color:#86868B;margin-bottom:0.75rem"><span>📅 {job.get("start_date","?")[:7]} → {job.get("end_date","Present")[:7] if job.get("end_date") else "Present"}</span><span>🏢 {job.get("company_size","?")}</span><span>🏭 {job.get("industry","?")}</span></div><div style="font-size:0.9rem;color:#1D1D1F;line-height:1.65">{desc}</div>',
             unsafe_allow_html=True,
         )
 
@@ -258,14 +248,7 @@ def _render_skill_row(skill_row: dict):
         prof_str = "Not found"
 
     st.markdown(
-        f"""
-<div style="background:{bg};border-radius:6px;padding:0.5rem 0.75rem;margin:0.25rem 0;display:flex;justify-content:space-between;align-items:center">
-  <div style="display:flex;align-items:center;gap:0.5rem">
-    <span style="color:{icon_color};font-weight:700">{icon}</span>
-    <span style="font-size:0.875rem;font-weight:500;color:#1D1D1F">{name}</span>
-  </div>
-  <span style="font-size:0.75rem;color:#6E6E73">{prof_str}</span>
-</div>""",
+        f'<div style="background:{bg};border-radius:6px;padding:0.5rem 0.75rem;margin:0.25rem 0;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:0.5rem"><span style="color:{icon_color};font-weight:700">{icon}</span><span style="font-size:0.875rem;font-weight:500;color:#1D1D1F">{name}</span></div><span style="font-size:0.75rem;color:#6E6E73">{prof_str}</span></div>',
         unsafe_allow_html=True,
     )
 
@@ -294,10 +277,6 @@ def _render_signals_table(signals: dict):
     ]
     for label, value in items:
         st.markdown(
-            f"""
-<div style="display:flex;justify-content:space-between;padding:0.375rem 0;border-bottom:1px solid #F0F0F0;font-size:0.875rem">
-  <span style="color:#6E6E73">{label}</span>
-  <span style="font-weight:500;color:#1D1D1F">{value}</span>
-</div>""",
+            f'<div style="display:flex;justify-content:space-between;padding:0.375rem 0;border-bottom:1px solid #F0F0F0;font-size:0.875rem"><span style="color:#6E6E73">{label}</span><span style="font-weight:500;color:#1D1D1F">{value}</span></div>',
             unsafe_allow_html=True,
         )

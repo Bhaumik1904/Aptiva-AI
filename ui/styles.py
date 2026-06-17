@@ -55,14 +55,40 @@ html, body,
 }
 
 /* ── Global Font Override ─────────────────────────────────────────────── */
-html, body, [class*="css"], * {
+html, body, [class*="css"] {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", sans-serif !important;
 }
 
 /* ── Hide Streamlit Branding ─────────────────────────────────────────── */
-#MainMenu, footer, header { visibility: hidden; }
+#MainMenu, footer { visibility: hidden; }
 .stDeployButton { display: none !important; }
 [data-testid="stToolbar"] { display: none !important; }
+
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+[data-testid="stSidebar"] {
+  background-color: #F5F5F7 !important;
+  border-right: 1px solid #E8E8ED !important;
+}
+[data-testid="stSidebar"] > div {
+  background-color: #F5F5F7 !important;
+}
+[data-testid="stSidebar"] .block-container {
+  padding: 1.5rem 1rem;
+  background-color: #F5F5F7 !important;
+}
+[data-testid="stSidebar"] * {
+  color: #1D1D1F !important;
+}
+
+/* ── Hide Sidebar Collapse Controls ────────────────────────────────────── */
+[data-testid="stSidebarCollapseButton"] {
+  display: none !important;
+}
+
+[data-testid="collapsedControl"] {
+  display: none !important;
+}
+
 
 /* ── Main Content Area ───────────────────────────────────────────────── */
 .main .block-container {
@@ -428,7 +454,6 @@ hr { border: none !important; border-top: 1px solid #E8E8ED !important; margin: 
         """,
         unsafe_allow_html=True,
     )
-
 
 def page_header(title: str, subtitle: str = "", icon: str = ""):
     """Render a consistent page header."""
