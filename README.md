@@ -116,6 +116,18 @@ The ranker **never** depends on Gemini. This is purely an offline quality improv
 
 ---
 
+## Future Architecture Roadmap (Enterprise)
+
+To comply with the strict hackathon compute constraints (5 minutes, CPU-only, no network), APTIVA AI utilizes highly-optimized TF-IDF vectorization and deterministic behavioral algorithms. However, if deployed in a true Enterprise environment with GPU and cloud support, the architecture is designed to scale into the following state-of-the-art models:
+
+1. **Dense Vector Embeddings (Sentence-Transformers):** Replacing TF-IDF with deep semantic models (like `all-MiniLM-L6-v2`) to capture complex synonyms and deep contextual nuances between candidates and Job Descriptions.
+2. **Graph Neural Networks (GNNs):** Modeling the 100k candidate pool as a massive Knowledge Graph to find hidden relational patterns (e.g., correlations between specific universities, companies, and unlisted skills).
+3. **Career Trajectory Forecasting:** Training Sequence Models (RNNs/Transformers) on chronological career histories to probabilistically predict a candidate's next logical career move.
+4. **Unsupervised Fraud Detection:** Deploying Isolation Forests to statistically flag hyper-inflated, anomalous resumes that standard deterministic rule-engines might miss.
+5. **Multi-Agent RAG Orchestration:** Utilizing LLM agents (LangChain/AutoGen) to automate the outreach loop: one agent reads the resume, another critiques the fit, and a third drafts hyper-personalized recruiter emails.
+
+---
+
 ## Compute Constraints (Hackathon)
 
 | Constraint | Status |
