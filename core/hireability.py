@@ -54,9 +54,12 @@ def compute_hireability_index(components: Dict) -> Dict[str, float]:
     # Career Relevance: direct career substance score
     career_relevance = min(1.0, components.get("career", 0))
 
-    # Behavior Signals: normalize behavioral multiplier (0.10–1.25) → (0–1)
+    # Behavior Signals: normalize behavioral multiplier → (0–1)
+    # Range updated to [0.75, 1.15] to match the System B BM clamp in behavioral.py.
+    # Old range [0.10, 1.25] caused a permanent floor of 56.5% behavior_signals
+    # for every candidate (BM never goes below 0.75 post-clamp).
     bm = components.get("behavioral_multiplier", 1.0)
-    bm_min, bm_max = 0.10, 1.25
+    bm_min, bm_max = 0.75, 1.15   # System B live range
     behavior_signals = min(1.0, max(0.0, (bm - bm_min) / (bm_max - bm_min)))
 
     # Availability & Trust from pre-computed sub-scores
@@ -83,15 +86,29 @@ def compute_hireability_index(components: Dict) -> Dict[str, float]:
 
 
 def get_hire_recommendation(hi_score: float, final_score: float) -> str:
-    """Map Hireability Index™ score to a hire recommendation label."""
-    if hi_score >= 82 and final_score >= 0.75:
+    """Map Final Score + Hireability Index™ to a hire recommendation label.
+
+    Final Score is the PRIMARY gate; HI is the confirming signal.
+    All tiers use AND — HI alone cannot promote a low-scoring candidate.
+    This ensures recommendation labels are always consistent with rank order.
+
+    Thresholds calibrated to the live HI distribution (observed max ≈ 64
+    for the top AI candidate in a mixed-role dataset):
+
+      STRONG_YES: FS >= 0.75 AND HI >= 60  (elite AI fit + strong HI)
+      YES:        FS >= 0.35 AND HI >= 35  (solid AI fit confirmed by HI)
+      MAYBE:      FS >= 0.18 AND HI >= 20  (meaningful signal, worth review)
+      NO:         everything else
+    """
+    if final_score >= 0.75 and hi_score >= 60:
         return "STRONG_YES"
-    elif hi_score >= 68 or final_score >= 0.62:
+    elif final_score >= 0.35 and hi_score >= 35:
         return "YES"
-    elif hi_score >= 50 or final_score >= 0.48:
+    elif final_score >= 0.18 and hi_score >= 20:
         return "MAYBE"
     else:
         return "NO"
+
 
 
 def get_confidence_score(components: Dict, is_honeypot: bool) -> float:
