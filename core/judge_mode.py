@@ -63,8 +63,19 @@ def generate_judge_verdict(candidate: Dict, components: Dict, rank: int) -> Dict
 
     if why_recommended_parts:
         why_recommended = f"Candidate {' and '.join(why_recommended_parts[:2])}."
+    elif components.get("relevance_gated", False):
+        # Issue #4: gated candidates must not receive AI-relevance framing
+        why_recommended = (
+            f"Candidate's domain relevance (title, skills, career) is below the "
+            f"AI/ML scoring threshold for this role. "
+            f"Included in the shortlist for completeness only; not recommended for interview."
+        )
     else:
-        why_recommended = f"Partial match with JD — adjacent skills present; Hireability Index {hi_score:.0f}/100."
+        why_recommended = (
+            f"Partial match with JD — some transferable signals present. "
+            f"Final Score {components.get('final_score', 0):.4f} reflects limited direct alignment "
+            f"with the Senior AI Engineer requirements."
+        )
 
     # ── Why Not Ranked Higher ─────────────────────────────────────────────
     why_not_higher_parts = []
@@ -161,38 +172,51 @@ def generate_judge_verdict(candidate: Dict, components: Dict, rank: int) -> Dict
         risk_factors.append("No significant risk factors identified")
 
     # ── Interview Recommendation ──────────────────────────────────────────
+    # Issue #3: Final Score is the primary cited metric in all verdict text.
+    # HI appears only as a secondary supporting metric where relevant.
     recommendation = components.get("recommendation", "MAYBE")
+    final_score_val = components.get("final_score", 0)
     if recommendation == "STRONG_YES":
         interview_rec = "YES"
         verdict_label = "Strong Hire"
         final_verdict = (
-            f"Strongly recommend for interview. {title} with {yoe} years of experience, "
-            f"Hireability Index {hi_score:.0f}/100, and strong signal alignment with the JD. "
+            f"Strongly recommend for interview. Final Score {final_score_val:.4f} — "
+            f"{title} with {yoe} years of experience and strong signal alignment with the JD. "
+            f"Hireability Index {hi_score:.0f}/100 confirms readiness. "
             f"Priority candidate — schedule immediately."
         )
     elif recommendation == "YES":
         interview_rec = "YES"
         verdict_label = "Hire"
         final_verdict = (
-            f"Recommend for interview. Good fit across key dimensions with Hireability Index "
-            f"{hi_score:.0f}/100. Worth pursuing — confirm skills in technical screen."
+            f"Recommend for interview. Final Score {final_score_val:.4f} — "
+            f"solid fit across key dimensions for the Senior AI Engineer role. "
+            f"Worth pursuing — confirm skills in technical screen."
         )
     elif recommendation == "MAYBE":
         interview_rec = "MAYBE"
         verdict_label = "Maybe"
         final_verdict = (
-            f"Borderline candidate. Hireability Index {hi_score:.0f}/100. "
-            f"Some JD alignment present but gaps exist. "
+            f"Borderline candidate. Final Score {final_score_val:.4f} — "
+            f"some JD alignment present but gaps exist (Hireability Index {hi_score:.0f}/100). "
             f"Consider for a screening call if pipeline is thin."
         )
     else:
         interview_rec = "NO"
         verdict_label = "Pass"
-        final_verdict = (
-            f"Do not recommend at this time. Hireability Index {hi_score:.0f}/100 — "
-            f"significant gaps relative to the Senior AI Engineer JD requirements. "
-            f"Consider only if requirements change."
-        )
+        if components.get("relevance_gated", False):
+            # Issue #4: gated candidates get an explicit domain-gate explanation
+            final_verdict = (
+                f"Do not recommend. Final Score {final_score_val:.4f} — "
+                f"candidate's domain relevance (title + skills + career) is below the "
+                f"AI/ML threshold for this role. Not suitable for the Senior AI Engineer position."
+            )
+        else:
+            final_verdict = (
+                f"Do not recommend at this time. Final Score {final_score_val:.4f} — "
+                f"significant gaps relative to the Senior AI Engineer JD requirements. "
+                f"Consider only if requirements change."
+            )
 
     # Judge confidence
     confidence = components.get("confidence_score", 0.5)
