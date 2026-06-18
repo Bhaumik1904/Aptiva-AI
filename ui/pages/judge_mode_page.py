@@ -140,6 +140,8 @@ def render(state: dict):
     section_label("FINAL VERDICT")
     hi = components.get("hireability_index", {})
     hi_score = hi.get("overall", 0) if hi else 0
+    # Issue #8: Final Score added as the primary (first) metric in the verdict box.
+    final_score_display = components.get("final_score", 0)
 
     final_color = "#1A8917" if label == "Strong Hire" else "#0071E3" if label == "Hire" else "#C47000" if label == "Maybe" else "#CC0000"
     final_bg = "#EBF5EA" if label == "Strong Hire" else "#E3F2FD" if label == "Hire" else "#FFF3E0" if label == "Maybe" else "#FFEBEB"
@@ -150,6 +152,10 @@ def render(state: dict):
   <div style="font-size:0.6875rem;font-weight:600;color:{final_color};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem">APTIVA AI Judge Mode Verdict</div>
   <div style="font-size:3rem;font-weight:800;color:{final_color};letter-spacing:-0.03em;margin-bottom:0.5rem">{txt}</div>
   <div style="display:flex;justify-content:center;gap:2.5rem;margin-top:1rem">
+    <div style="text-align:center">
+      <div style="font-size:1.5rem;font-weight:700;color:{final_color}">{final_score_display:.4f}</div>
+      <div style="font-size:0.7rem;color:#86868B;text-transform:uppercase">Final Score</div>
+    </div>
     <div style="text-align:center">
       <div style="font-size:1.5rem;font-weight:700;color:#1D1D1F">{hi_score:.0f}</div>
       <div style="font-size:0.7rem;color:#86868B;text-transform:uppercase">Hireability Index™</div>
