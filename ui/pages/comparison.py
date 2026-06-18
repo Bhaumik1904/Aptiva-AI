@@ -68,7 +68,9 @@ def render(state: dict):
     hi_score_a = hi_a.get("overall", 0) if hi_a else 0
     hi_score_b = hi_b.get("overall", 0) if hi_b else 0
 
-    winner_is_a = hi_score_a >= hi_score_b
+    # ── MASTER SCORE: Final Score is the single source of truth for ranking ──
+    # Hireability Index is an explainability metric only — never a decision key.
+    winner_is_a = result_a["score"] >= result_b["score"]
 
     st.markdown("---")
 
@@ -161,7 +163,7 @@ def render(state: dict):
 <div style="background:#EBF5EA;border:1.5px solid #1A8917;border-radius:14px;padding:1.5rem;text-align:center">
   <div style="font-size:0.75rem;font-weight:600;color:#1A8917;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Recommended Candidate</div>
   <div style="font-size:1.5rem;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em">{winner_cand.get('candidate_id')} — {winner_title}</div>
-  <div style="font-size:0.9375rem;color:#6E6E73;margin-top:0.25rem">Rank #{winner_result['rank']} · Hireability Index™ <strong style="color:#1A8917">{winner_hi:.0f}/100</strong> · Score {winner_result['score']:.4f}</div>
+  <div style="font-size:0.9375rem;color:#6E6E73;margin-top:0.25rem">Rank #{winner_result['rank']} · Final Score <strong style="color:#1A8917">{winner_result['score']:.4f}</strong> · Hireability Index™ {winner_hi:.0f}/100</div>
 </div>""",
         unsafe_allow_html=True,
     )
