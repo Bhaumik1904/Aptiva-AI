@@ -212,15 +212,19 @@ def generate_ai_insights(candidate: Dict, components: Dict) -> Dict:
     if any("senior" in t.lower() or "lead" in t.lower() or "principal" in t.lower() for t in titles):
         trajectory = "Upward trajectory with leadership roles"
 
-    # Hiring readiness
-    if hi_score >= 80:
-        hiring_readiness = "Ready to hire — strong across all dimensions"
-    elif hi_score >= 65:
-        hiring_readiness = "Good candidate — minor concerns worth discussing in interview"
-    elif hi_score >= 50:
-        hiring_readiness = "Needs evaluation — mixed signals, interview recommended"
+    # Hiring readiness — Issue #6: driven by recommendation (Final Score gate),
+    # not HI score, to ensure consistency with the recommendation badge on the
+    # same page. Eliminates the contradiction where recommendation=NO could
+    # coexist with "interview recommended" hiring_readiness text.
+    recommendation_val = components.get("recommendation", "NO")
+    if recommendation_val == "STRONG_YES":
+        hiring_readiness = "Ready to hire — strong across all scoring dimensions"
+    elif recommendation_val == "YES":
+        hiring_readiness = "Good candidate — recommend for technical screen"
+    elif recommendation_val == "MAYBE":
+        hiring_readiness = "Borderline — screening call warranted if pipeline is thin"
     else:
-        hiring_readiness = "Below threshold — significant gaps relative to JD"
+        hiring_readiness = "Not recommended — below scoring threshold for this role"
 
     # Market demand
     profile_views = signals.get("profile_views_received_30d", 0)
