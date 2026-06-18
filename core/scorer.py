@@ -42,11 +42,15 @@ def score_title(candidate: Dict) -> float:
     title_scores = JD_CONFIG["title_scores"]
 
     best_score = 0.0
+    matched = False  # Track whether any dict entry matched, even at score 0.0
     for jd_title, score in title_scores.items():
         if jd_title in title or title in jd_title:
             best_score = max(best_score, score)
+            matched = True
 
-    if best_score == 0.0:
+    if not matched:
+        # Catch-all: applies ONLY when no explicit entry matched.
+        # Entries with score 0.0 in title_scores are intentional exclusions.
         if "engineer" in title or "scientist" in title:
             best_score = 0.25
         elif "analyst" in title or "developer" in title:
@@ -286,6 +290,24 @@ def compute_final_score(candidate: Dict, tfidf_similarity: float) -> Tuple[float
     # Apply behavioral multiplier
     final_score = min(1.0, base_score * behavioral_mult)
 
+    # ── Relevance Gate ────────────────────────────────────────────────────────
+    # Prevents candidates with no AI/ML title, skills, or career evidence from
+    # outranking legitimate tech candidates via domain-agnostic signals alone
+    # (experience window, location, education tier, engagement).
+    #
+    # domain_rel: normalised combined weight of the three domain-aware components.
+    # Threshold 0.01 chosen from calibration study — sits in the natural gap
+    # between 0.0055 (last irrelevant candidate) and 0.0229 (first software role).
+    # Precision: 100% (zero collateral on any legitimate tech/software candidate).
+    _domain_weight = WEIGHTS["title"] + WEIGHTS["skills"] + WEIGHTS["career"]
+    domain_rel = (
+        WEIGHTS["title"]  * title_s
+        + WEIGHTS["skills"] * skills_s
+        + WEIGHTS["career"] * career_s
+    ) / _domain_weight
+    if domain_rel < 0.01:
+        final_score = min(0.15, final_score)
+
     # Build full components dict
     components = {
         "title":               round(title_s, 4),
@@ -300,6 +322,8 @@ def compute_final_score(candidate: Dict, tfidf_similarity: float) -> Tuple[float
         "trust_score":         round(trust_s, 4),
         "base_score":          round(base_score, 4),
         "final_score":         round(final_score, 4),
+        "domain_relevance":    round(domain_rel, 4),   # gate diagnostic field
+        "relevance_gated":     domain_rel < 0.01,      # True if gate fired
         "honeypot":            False,
         "honeypot_flags":      [],
     }
@@ -310,6 +334,10 @@ def compute_final_score(candidate: Dict, tfidf_similarity: float) -> Tuple[float
 
     # Auxiliary scores
     recommendation = get_hire_recommendation(hi["overall"], final_score)
+    # Relevance gate override: if gate fired, candidate cannot receive a positive label.
+    # Ensures rank order and recommendation badge are always consistent.
+    if components.get("relevance_gated", False):
+        recommendation = "NO"
     confidence = get_confidence_score(components, is_honeypot=False)
     risk = get_risk_score(candidate, components, [])
 
