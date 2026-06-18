@@ -50,6 +50,17 @@ JD_CONFIG = {
         "customer support": 0.00,
         "business analyst": 0.10,
         "project manager": 0.10,
+        # Non-AI engineering disciplines — explicit exclusions so the
+        # generic "engineer" catch-all (0.25) in score_title() is never reached.
+        # Titles listed here are matched BEFORE the fallback fires.
+        "civil engineer":       0.00,  # Structural / construction — irrelevant
+        "mechanical engineer":  0.00,  # Manufacturing / CAD — irrelevant
+        "chemical engineer":    0.00,  # Process engineering — irrelevant
+        "electrical engineer":  0.05,  # Mild adjacency (VLSI, signal processing)
+        "qa engineer":          0.10,  # Testing adjacent; some ML QA overlap
+        "embedded engineer":    0.10,  # Firmware; small overlap with edge AI
+        "network engineer":     0.05,  # Infrastructure; minor ML-ops relevance
+        "hardware engineer":    0.05,  # Silicon; minor edge inference relevance
     },
 
     # ── Core Required Skills (from must-have section of JD) ──────────────────
