@@ -1,7 +1,11 @@
 """
 APTIVA AI — Behavioral Multiplier & Availability/Trust Scores
-Computes the behavioral engagement multiplier (0.10–1.25) and
+Computes the behavioral engagement multiplier (0.75–1.15) and
 sub-scores for Availability and Trust used in the Hireability Index™.
+
+System B (Soft BM): clamp range reduced from [0.10, 1.25] to [0.75, 1.15].
+Behavioral signals act as a secondary tiebreaker (±15%), not a ranking engine.
+All internal signal logic is unchanged.
 """
 
 from datetime import datetime
@@ -11,7 +15,11 @@ from typing import Dict, Tuple
 def compute_behavioral_multiplier(candidate: Dict) -> float:
     """
     Multiplicative modifier applied to the base score.
-    Range: 0.10 (ghost / unavailable) to 1.25 (highly engaged).
+    Range: 0.75 (low engagement) to 1.15 (highly engaged).
+
+    System B Soft BM: final score clamped to [0.75, 1.15] after all
+    signal calculations, so behavioral signals adjust ranking by at most
+    ±15% rather than acting as a primary ranking determinant.
     """
     signals = candidate.get("redrob_signals", {})
     today = datetime.now().date()
@@ -120,7 +128,7 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
         elif oar < 0.20:
             score *= 0.95
 
-    return max(0.10, min(1.25, score))
+    return max(0.75, min(1.15, score))  # System B: clamp to [0.75, 1.15]
 
 
 def compute_availability_score(signals: Dict) -> float:
