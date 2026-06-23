@@ -9,6 +9,7 @@ import streamlit as st
 
 from ui.charts import (
     experience_distribution,
+    final_score_distribution,
     hireability_distribution,
     location_distribution,
     top_skills_chart,
