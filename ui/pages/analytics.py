@@ -58,8 +58,10 @@ def render(state: dict):
     with s4:
         st.metric("Open to Work", open_to_work)
     with s5:
+        st.metric("Avg Final Score", f"{avg_fs:.4f}", delta="Ranking metric")
+    with s6:
         avg_hi = sum(hi_scores) / max(1, len(hi_scores))
-        st.metric("Avg Hireability™", f"{avg_hi:.0f}/100")
+        st.metric("Avg Hireability™", f"{avg_hi:.0f}/100", delta="Secondary signal")
 
     st.markdown("---")
 
