@@ -95,6 +95,13 @@ def render(state: dict):
 
     st.markdown("---")
 
+    # ── Row 2b: HI Distribution (secondary) ────────────────────────────
+    section_label("HIREABILITY INDEX™ DISTRIBUTION (SECONDARY METRIC)")
+    hi_fig = hireability_distribution(results)
+    st.plotly_chart(hi_fig, use_container_width=True, config={"displayModeBar": False})
+
+    st.markdown("---")
+
     # ── Row 3: Behavior & Recommendations ─────────────────────────────────
     section_label("RECOMMENDATION BREAKDOWN")
     rec_counts = {"STRONG_YES": 0, "YES": 0, "MAYBE": 0, "NO": 0}
