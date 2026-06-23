@@ -80,18 +80,18 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Row 2: Experience + Hireability ────────────────────────────────────
+    # ── Row 2: Final Score Distribution (primary) + Experience ────────────
     col3, col4 = st.columns(2)
 
     with col3:
+        section_label("FINAL SCORE DISTRIBUTION (RANKING METRIC)")
+        fs_fig = final_score_distribution(results)
+        st.plotly_chart(fs_fig, use_container_width=True, config={"displayModeBar": False})
+
+    with col4:
         section_label("EXPERIENCE DISTRIBUTION")
         exp_fig = experience_distribution(candidates)
         st.plotly_chart(exp_fig, use_container_width=True, config={"displayModeBar": False})
-
-    with col4:
-        section_label("HIREABILITY INDEX™ DISTRIBUTION")
-        hi_fig = hireability_distribution(results)
-        st.plotly_chart(hi_fig, use_container_width=True, config={"displayModeBar": False})
 
     st.markdown("---")
 
