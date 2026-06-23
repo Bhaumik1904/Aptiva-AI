@@ -59,7 +59,10 @@ def render(state: dict):
     with st.expander("🔍 Filters & Search", expanded=False):
         fcol1, fcol2, fcol3, fcol4 = st.columns(4)
         with fcol1:
-            min_hi = st.slider("Min Hireability Index", 0, 100, 0, step=5)
+            # Issue #4: filter on Final Score (ranking metric), not Hireability Index.
+            # Min HI could suppress the top-ranked candidate if their HI < threshold.
+            min_fs = st.slider("Min Final Score", 0.00, 1.00, 0.00, step=0.05,
+                               help="Filters candidates by Final Score — the ranking metric.")
         with fcol2:
             yoe_range = st.slider("Years of Experience", 0, 20, (0, 20))
         with fcol3:
