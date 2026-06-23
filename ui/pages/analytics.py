@@ -36,7 +36,7 @@ def render(state: dict):
 
     # ── Summary Stats ──────────────────────────────────────────────────────
     section_label("DATASET OVERVIEW")
-    s1, s2, s3, s4, s5 = st.columns(5)
+    s1, s2, s3, s4, s5, s6 = st.columns(6)
 
     yoe_values = [c["profile"].get("years_of_experience", 0) for c in candidates]
     hi_scores = [
