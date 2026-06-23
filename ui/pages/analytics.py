@@ -1,7 +1,8 @@
 """
 APTIVA AI — Analytics Dashboard
 Dataset-wide analytics: skill distributions, locations, experience,
-behavior signals, Hireability Index distribution, and recruiter readiness.
+behavior signals, Final Score distribution (ranking metric),
+Hireability Index distribution (secondary metric), and recruiter readiness.
 """
 
 import streamlit as st
