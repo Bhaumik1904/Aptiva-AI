@@ -318,6 +318,29 @@ def hireability_distribution(scored_candidates: List[Dict]) -> go.Figure:
     return fig
 
 
+# ── Final Score Distribution ──────────────────────────────────────────────────
+
+def final_score_distribution(scored_candidates: list) -> go.Figure:
+    """Distribution of Final Scores — the primary ranking metric."""
+    fs_scores = [entry.get("score", 0) for entry in scored_candidates if "score" in entry]
+    if not fs_scores:
+        return go.Figure()
+    top_score = max(fs_scores)
+    fig = go.Figure(go.Histogram(
+        x=fs_scores, nbinsx=20,
+        marker={"color": COLORS["success"], "line": {"color": "#FFFFFF", "width": 1}},
+        hovertemplate="Final Score: %{x:.4f}<br>Count: %{y}<extra></extra>",
+    ))
+    fig.add_vline(x=top_score, line_dash="dash", line_color=COLORS["accent"], line_width=1.5,
+                  annotation_text=f"Top: {top_score:.4f}", annotation_position="top right",
+                  annotation_font={"size": 11, "color": COLORS["accent"]})
+    fig.update_layout(**BASE_LAYOUT, height=260,
+        title={"text": "Final Score Distribution (Ranking Metric)", "font": {"size": 13, "color": COLORS["text_2"]}},
+        xaxis={"title": "Final Score", "showgrid": False},
+        yaxis={"title": "Candidates", "showgrid": True, "gridcolor": "#F0F0F0"})
+    return fig
+
+
 # ── Comparison Spider Chart ───────────────────────────────────────────────────
 
 def comparison_radar(comp_a: Dict, comp_b: Dict, label_a: str = "Candidate A", label_b: str = "Candidate B") -> go.Figure:
