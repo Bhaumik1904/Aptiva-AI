@@ -92,7 +92,7 @@ def render(state: dict):
         hi_score = hi.get("overall", 0) if hi else 0
 
         # Apply filters
-        if hi_score < min_hi:
+        if r["score"] < min_fs:  # Issue #4: gate on Final Score, not HI
             continue
         if not (yoe_range[0] <= yoe <= yoe_range[1]):
             continue
