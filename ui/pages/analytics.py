@@ -44,6 +44,8 @@ def render(state: dict):
         for r in results
         if r.get("components", {}).get("hireability_index")
     ]
+    fs_scores = [r.get("score", 0) for r in results if "score" in r]
+    avg_fs = sum(fs_scores) / max(1, len(fs_scores))
     open_to_work = sum(1 for c in candidates if c.get("redrob_signals", {}).get("open_to_work_flag", False))
     strong_hires = sum(1 for r in results if r.get("components", {}).get("recommendation") == "STRONG_YES")
 
