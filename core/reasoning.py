@@ -59,7 +59,13 @@ def generate_reasoning(
 
 
 def _template_reasoning(candidate: Dict, rank: int, components: Dict) -> str:
-    """Build a specific, fact-grounded reasoning string from templates."""
+    """Build a specific, fact-grounded reasoning string from templates.
+
+    Implements:
+      Issue #3 — Relevance-gated candidates receive gate-disclosure reasoning only.
+      Issue #1 — Top-10 ranks cite Final Score as primary metric; HI is secondary.
+      Issue #2 — All rank branches cite Final Score so every CSV row is self-auditable.
+    """
     profile = candidate.get("profile", {})
     signals = candidate.get("redrob_signals", {})
 
@@ -72,6 +78,19 @@ def _template_reasoning(candidate: Dict, rank: int, components: Dict) -> str:
     days_inactive = get_days_inactive(signals)
     hi = components.get("hireability_index", {})
     hi_score = hi.get("overall", 50) if hi else 50
+    final_score = components.get("final_score", 0)
+
+    # ── Issue #3: Relevance Gate disclosure ──────────────────────────────────
+    # Short-circuit before any template branch — gated candidates must not
+    # receive reasoning that implies JD domain fit.
+    if components.get("relevance_gated", False):
+        return (
+            f"Relevance Gate applied: domain relevance below AI/ML threshold "
+            f"(title + skills + career signal < 0.01); '{title}' is outside the "
+            f"target AI/ML engineering domain. "
+            f"Final Score {final_score:.4f} capped by gate. "
+            f"Included in top-100 for completeness; not a recommended JD fit."
+        )
 
     # Top matching skills
     matching_skills = get_top_matching_skills(candidate, n=3)
@@ -123,18 +142,27 @@ def _template_reasoning(candidate: Dict, rank: int, components: Dict) -> str:
     if response_rate < 0.20:
         concerns.append(f"low recruiter response rate ({response_rate:.0%})")
 
-    # Assemble
+    # Assemble shared parts
     s_str = "; ".join(strengths[:2]) if strengths else "adequate profile fit"
     c_str = (f"; concern: {concerns[0]}" if concerns else "")
 
+    # ── Issue #1: Top-10 — Final Score is the primary cited metric ───────────
     if rank <= 10:
-        return f"Rank #{rank}: {s_str}, {location}-based, Hireability {hi_score:.0f}/100{c_str}."
+        return (
+            f"Rank #{rank}: {s_str}, {location}-based, "
+            f"Final Score {final_score:.4f} (HI {hi_score:.0f}/100){c_str}."
+        )
+    # ── Issue #2: Ranks 11–50 — append Final Score so every row is auditable ─
     elif rank <= 50:
-        return f"{s_str}, {location}{c_str}."
+        return f"{s_str}, {location} [FS {final_score:.4f}]{c_str}."
+    # ── Issue #2: Ranks 51–100 — explicit Final Score replaces vague text ────
     else:
         first = strengths[0] if strengths else "adjacent candidate"
         concern_part = f"; concern: {concerns[0]}" if concerns else ""
-        return f"{first}{concern_part}; rank reflects weaker signal alignment with JD."
+        return (
+            f"{first}{concern_part}; "
+            f"Final Score {final_score:.4f} reflects weaker JD signal alignment."
+        )
 
 
 def generate_ai_insights(candidate: Dict, components: Dict) -> Dict:
