@@ -487,6 +487,6 @@ All ranking and scoring operations use only `scikit-learn`, `numpy`, and Python 
 
 **Built for the Redrob AI Hackathon — India.Runs Data & AI Challenge**
 
-*APTIVA AI · Intelligent Candidate Discovery · 2025*
+*APTIVA AI · Intelligent Candidate Discovery · 2026*
 
 </div>
