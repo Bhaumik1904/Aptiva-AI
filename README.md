@@ -51,7 +51,7 @@ APTIVA AI addresses all three failure modes explicitly.
 
 ## Solution Overview
 
-APTIVA AI uses a **7-component weighted scoring pipeline** with a **23-signal behavioral multiplier** and a **domain Relevance Gate** that prevents non-AI profiles from reaching the Top 100 regardless of their other signals.
+APTIVA AI uses a **7-component weighted scoring pipeline** with a **15-signal behavioral multiplier** and a **domain Relevance Gate** that prevents non-AI profiles from reaching the Top 100 regardless of their other signals.
 
 The pipeline is deterministic, interpretable, and runs without any network calls, GPU, or external APIs during ranking. Every decision is explainable to a recruiter.
 
@@ -78,8 +78,8 @@ The pipeline is deterministic, interpretable, and runs without any network calls
          │  Base Score
          ▼
 ┌─────────────────────┐
-│  Behavioral         │  × 0.10–1.25 multiplier
-│  Multiplier (23     │
+│  Behavioral         │  × 0.75–1.15 multiplier
+│  Multiplier (15     │
 │  signals)           │
 └────────┬────────────┘
          │  Adjusted Score
@@ -115,9 +115,9 @@ APTIVA AI/
 │   │                           · 14 preferred locations
 │   │                           · 15 consulting firm penalisers
 │   │                           · 50 TF-IDF career keywords
-│   ├── scorer.py             6 component scoring functions + final combiner
+│   ├── scorer.py             7 component scoring functions + final combiner
 │   ├── tfidf_engine.py       TF-IDF career substance index (sparse, efficient)
-│   ├── behavioral.py         23-signal behavioral multiplier
+│   ├── behavioral.py         15-signal behavioral multiplier
 │   ├── honeypot.py           Adversarial profile detection
 │   ├── hireability.py        Hireability Index™ computation
 │   ├── skill_gap.py          Core/Missing/Bonus skill classification
@@ -176,9 +176,9 @@ where:
 | **Location** | 5% | Preferred cities (Pune, Noida, Delhi NCR, Hyderabad, Mumbai, Bangalore) → 1.0. India + willing to relocate → 0.80. |
 | **Engagement** | 5% | `0.30 × profile_completeness + 0.30 × open_to_work + 0.40 × recruiter_response_rate` |
 
-### Behavioral Multiplier — 23 Signals
+### Behavioral Multiplier — 15 Signals
 
-The behavioral multiplier (range: **0.10× – 1.25×**) modulates the base score multiplicatively. It is never the primary driver of ranking — a candidate with a poor base score cannot reach the Top 100 through behavioral signals alone.
+The behavioral multiplier (range: **0.75× – 1.15×**) modulates the base score multiplicatively. It is never the primary driver of ranking — a candidate with a poor base score cannot reach the Top 100 through behavioral signals alone.
 
 **Boost signals:** Open to work, LinkedIn connected, verified email+phone, high response rate, GitHub activity, short notice period, recent activity.
 
@@ -281,8 +281,8 @@ python evaluate.py \
 The scoring system was designed from the ground up to resist the specific adversarial patterns documented in the Redrob dataset:
 
 - **Keyword stuffers:** The Skill Trust component weights proficiency × duration × endorsements, not raw skill count. Listing "Expert PyTorch — 0 months" is penalised to 10% weight.
-- **Behavioral twins:** The Behavioral Multiplier (0.10×–1.25×) can never substitute for domain relevance. A candidate with perfect behavioral signals but no AI/ML title, skills, or career context is gated at score ≤ 0.15.
-- **Honeypots:** A 9-signal Honeypot Detector runs before scoring. Any detected honeypot is assigned score = 0.001 and cannot enter the Top 100.
+- **Behavioral twins:** The Behavioral Multiplier (0.75×–1.15×, capped range) can never substitute for domain relevance. A candidate with perfect behavioral signals but no AI/ML title, skills, or career context is gated at score ≤ 0.15.
+- **Honeypots:** A multi-check Honeypot Detector runs before scoring (temporal consistency, impossible career dates, Expert+0-month skills, assessment contradictions, ghost profiles). Any detected honeypot is assigned score = 0.001 and cannot enter the Top 100.
 - **Consulting-firm masking:** Candidates who spent their entire career in IT services firms (TCS, Infosys, Wipro, Accenture, etc.) receive a consulting penalty on their Career Substance score.
 
 ### 2. Hybrid Career Substance Score

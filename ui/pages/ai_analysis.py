@@ -175,7 +175,7 @@ def render(state: dict):
     st.markdown("---")
 
     # ── AI Reasoning ──────────────────────────────────────────────────────
-    section_label("AI REASONING")
+    section_label("RANKING REASONING")
     from core.reasoning import generate_reasoning
     reasoning = generate_reasoning(candidate, rank, components)
     st.markdown(

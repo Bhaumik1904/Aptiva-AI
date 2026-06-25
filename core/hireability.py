@@ -34,7 +34,7 @@ def compute_hireability_index(components: Dict) -> Dict[str, float]:
             - title (0-1)
             - skills (0-1)
             - career (0-1)
-            - behavioral_multiplier (0.10-1.25)
+            - behavioral_multiplier (0.75-1.15, System B clamped range)
             - availability (0-1)  ← from behavioral.compute_availability_score
             - trust_score (0-1)   ← from behavioral.compute_trust_score
 
