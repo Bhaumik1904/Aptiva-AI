@@ -243,8 +243,62 @@ def auto_run_ranking(loader: DatasetLoader):
     if st.session_state.get("ranking_done"):
         return  # Already ranked
 
-    with st.spinner("⬡ APTIVA AI is analyzing candidates... This may take a moment."):
-        result_data = run_ranking(str(candidates_path))
+    # ── Staged loading UI ─────────────────────────────────────────────────
+    _STAGES = [
+        (0.05, "📂 Loading dataset",              "Parsing candidates.jsonl — 100,000 profiles",           "~8s"),
+        (0.50, "🔬 Building TF-IDF index",        "Vectorizing career histories against 8,000 JD keywords", "~45s"),
+        (0.85, "⚡ Scoring all candidates",        "Running 7-component pipeline across 100K profiles",      "~35s"),
+        (0.95, "🏆 Selecting Top 100",             "Applying Relevance Gate · generating reasoning",         "~5s"),
+        (1.00, "✅ Done",                          "Rankings ready",                                         ""),
+    ]
+
+    header_slot   = st.empty()
+    stage_slot    = st.empty()
+    bar_slot      = st.empty()
+    detail_slot   = st.empty()
+    eta_slot      = st.empty()
+
+    def _show_stage(progress: float, title: str, detail: str, eta: str):
+        header_slot.markdown(
+            """
+<div style="text-align:center;padding:2rem 1rem 0.5rem">
+  <div style="font-size:1.5rem;font-weight:800;color:#1D1D1F;letter-spacing:-0.03em">⬡ APTIVA AI</div>
+  <div style="font-size:0.875rem;color:#86868B;margin-top:0.25rem">Intelligent Candidate Ranking · Redrob AI Hackathon</div>
+</div>""",
+            unsafe_allow_html=True,
+        )
+        stage_slot.markdown(
+            f'<div style="text-align:center;font-size:1.0625rem;font-weight:600;color:#1D1D1F;margin:0.5rem 0">{title}</div>',
+            unsafe_allow_html=True,
+        )
+        bar_slot.progress(progress)
+        detail_slot.markdown(
+            f'<div style="text-align:center;font-size:0.875rem;color:#6E6E73;margin-top:0.25rem">{detail}</div>',
+            unsafe_allow_html=True,
+        )
+        eta_slot.markdown(
+            f'<div style="text-align:center;font-size:0.8125rem;color:#86868B;margin-top:0.125rem">{("Est. " + eta + " remaining") if eta else ""}</div>',
+            unsafe_allow_html=True,
+        )
+
+    # Show stage 1 immediately before blocking call
+    _show_stage(*_STAGES[0])
+    time.sleep(0.05)
+    _show_stage(*_STAGES[1])
+
+    # --- blocking ranking call ---
+    result_data = run_ranking(str(candidates_path))
+
+    _show_stage(*_STAGES[2])
+    time.sleep(0.05)
+    _show_stage(*_STAGES[3])
+    time.sleep(0.05)
+    _show_stage(*_STAGES[4])
+    time.sleep(0.3)
+
+    # Clear loading UI
+    for slot in [header_slot, stage_slot, bar_slot, detail_slot, eta_slot]:
+        slot.empty()
 
     if result_data["results"]:
         st.session_state["results"]           = result_data["results"]

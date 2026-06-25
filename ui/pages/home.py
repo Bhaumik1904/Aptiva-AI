@@ -123,6 +123,22 @@ def render(state: dict):
         render_empty_state("No candidates match current filters")
         return
 
+    # ── Score Legend ───────────────────────────────────────────────────────
+    st.markdown(
+        """
+<div style="background:#F0F7FF;border:1px solid #C8DEFF;border-radius:8px;padding:0.625rem 1rem;margin-bottom:0.75rem;display:flex;gap:2rem;flex-wrap:wrap">
+  <div style="font-size:0.8125rem;color:#1D1D1F">
+    <span style="font-weight:700;color:#0071E3">Score</span>
+    <span style="color:#6E6E73"> — Ranking metric (drives submission order, optimised for NDCG)</span>
+  </div>
+  <div style="font-size:0.8125rem;color:#1D1D1F">
+    <span style="font-weight:700;color:#1D1D1F">Hireability™</span>
+    <span style="color:#6E6E73"> — Recruiter trust metric (5-dimension, 0–100)</span>
+  </div>
+</div>""",
+        unsafe_allow_html=True,
+    )
+
     section_label(f"SHOWING {len(rows)} CANDIDATES")
 
     # ── Render Table ──────────────────────────────────────────────────────
@@ -137,8 +153,16 @@ def render(state: dict):
         hide_index=True,
         column_config={
             "Rank":         st.column_config.NumberColumn("Rank", width="small"),
-            "Hireability™": st.column_config.TextColumn("Hireability™", width="small"),
-            "Score":        st.column_config.TextColumn("Score", width="small"),
+            "Hireability™": st.column_config.TextColumn(
+                "Hireability™",
+                width="small",
+                help="Recruiter trust score (0–100). 5 dimensions: Technical Fit, Career Relevance, Behavior, Availability, Trust.",
+            ),
+            "Score":        st.column_config.TextColumn(
+                "Score",
+                width="small",
+                help="Final Score (0–1.0): the ranking metric that determines position in submission.csv.",
+            ),
         },
         height=min(600, 60 + len(rows) * 36),
     )

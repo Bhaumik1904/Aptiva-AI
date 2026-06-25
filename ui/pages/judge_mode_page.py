@@ -117,8 +117,11 @@ def render(state: dict):
             )
 
     with col2:
-        # Why Not Ranked Higher
-        section_label("WHY NOT RANKED HIGHER")
+        # Section label adapts for Rank #1 — 'Why Not Ranked Higher' is
+        # semantically correct for ranks 2-100 but misleading for the
+        # top-ranked candidate who has no candidate above them.
+        why_label = "PLACEMENT RATIONALE" if rank == 1 else "WHY NOT RANKED HIGHER"
+        section_label(why_label)
         _verdict_card(verdict.get("why_not_ranked_higher", "—"), icon="↓", color="#C47000")
 
         st.markdown("<br>", unsafe_allow_html=True)
@@ -155,10 +158,12 @@ def render(state: dict):
     <div style="text-align:center">
       <div style="font-size:1.5rem;font-weight:700;color:{final_color}">{final_score_display:.4f}</div>
       <div style="font-size:0.7rem;color:#86868B;text-transform:uppercase">Final Score</div>
+      <div style="font-size:0.65rem;color:#86868B;margin-top:0.1rem">(ranking metric)</div>
     </div>
     <div style="text-align:center">
       <div style="font-size:1.5rem;font-weight:700;color:#1D1D1F">{hi_score:.0f}</div>
       <div style="font-size:0.7rem;color:#86868B;text-transform:uppercase">Hireability Index™</div>
+      <div style="font-size:0.65rem;color:#86868B;margin-top:0.1rem">(recruiter trust, 0–100)</div>
     </div>
     <div style="text-align:center">
       <div style="font-size:1.5rem;font-weight:700;color:#1D1D1F">#{rank}</div>

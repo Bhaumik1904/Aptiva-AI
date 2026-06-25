@@ -87,6 +87,20 @@ def render(state: dict):
 
     # ── TOP ROW: 6 Key Metrics ────────────────────────────────────────────
     section_label("KEY METRICS")
+    st.markdown(
+        """
+<div style="background:#F0F7FF;border:1px solid #C8DEFF;border-radius:8px;padding:0.5rem 1rem;margin-bottom:0.75rem;display:flex;gap:2rem;flex-wrap:wrap">
+  <div style="font-size:0.8125rem;color:#1D1D1F">
+    <span style="font-weight:700;color:#0071E3">Overall Score</span>
+    <span style="color:#6E6E73"> — Ranking metric (0–1.0, drives submission order)</span>
+  </div>
+  <div style="font-size:0.8125rem;color:#1D1D1F">
+    <span style="font-weight:700;color:#1D1D1F">Hireability Index™</span>
+    <span style="color:#6E6E73"> — Recruiter trust score (0–100, 5-dimension)</span>
+  </div>
+</div>""",
+        unsafe_allow_html=True,
+    )
     m1, m2, m3, m4, m5, m6 = st.columns(6)
     with m1:
         st.metric("Overall Score", f"{score:.4f}")
@@ -175,12 +189,12 @@ def render(state: dict):
     st.markdown("---")
 
     # ── AI Reasoning ──────────────────────────────────────────────────────
-    section_label("RANKING REASONING")
+    section_label("RANKING EXPLANATION")
     from core.reasoning import generate_reasoning
     reasoning = generate_reasoning(candidate, rank, components)
     st.markdown(
         f'<div style="background:#F5F5F7;border-radius:10px;padding:1.25rem;font-size:0.9375rem;color:#1D1D1F;line-height:1.6">'
-        f'<span style="font-size:0.75rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:0.5rem">APTIVA AI Generated</span>'
+        f'<span style="font-size:0.75rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:0.5rem">Fact-grounded · Based on title, skills, experience, location, availability</span>'
         f'{reasoning}</div>',
         unsafe_allow_html=True,
     )
