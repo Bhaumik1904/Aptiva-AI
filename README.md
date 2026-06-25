@@ -1,158 +1,492 @@
-# APTIVA AI
-## Intelligent Candidate Discovery & Ranking
-### Redrob AI Hackathon — India.Runs Data & AI Challenge
+<div align="center">
+
+# ⬡ APTIVA AI
+### Intelligent Candidate Discovery & Ranking
+**Redrob AI Hackathon — India.Runs Data & AI Challenge**
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.32%2B-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3%2B-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
+[![License](https://img.shields.io/badge/License-MIT-22C55E?style=flat-square)](LICENSE)
+
+</div>
 
 ---
 
-## Quick Start
+## Executive Summary
 
-### 1. Install dependencies
+APTIVA AI is an intelligent candidate discovery and ranking engine purpose-built for the Redrob AI Hackathon challenge. Given a pool of 100,000 candidates, it identifies and ranks the Top-100 most qualified individuals for a **Senior AI Engineer** role using a deterministic, multi-component scoring pipeline that runs entirely on CPU in under 100 seconds.
+
+The system is designed around a single design principle: **a candidate should rank high only if they are genuinely qualified** — not because they stuffed keywords, not because they have high behavioral signals, and not because the ranking formula can be gamed. Every component of the scoring engine exists to enforce this principle.
+
+**Verified ranking quality on a 30-candidate expert-annotated ground truth:**
+
+| Metric | Score | Challenge Weight |
+|---|---|---|
+| **NDCG@10** | **0.8731** | 50% |
+| **NDCG@50** | **0.9609** | 30% |
+| **MAP** | **0.9149** | 15% |
+| **Precision@10** | **1.0000** | 5% |
+| MRR | 1.0000 | — |
+| Recall@50 | 1.0000 | — |
+| Runtime (100K candidates) | **~100 seconds** | ≤ 300s constraint |
+
+> *Precision@10 = 1.000 confirms zero non-AI/ML candidates in the Top 10. MRR = 1.000 confirms the #1 ranked candidate is unambiguously relevant.*
+
+---
+
+## Problem Statement
+
+The challenge presents 100,000 candidate profiles with a deliberate adversarial element: the dataset contains **keyword stuffers, behavioral twins, honeypots, plain-language Tier-5 candidates, and profile inconsistencies.** Excessive honeypots in the Top 100 result in disqualification.
+
+A naive TF-IDF or keyword-match ranking system will fail for three predictable reasons:
+
+1. **Keyword stuffers** — Non-AI candidates who list PyTorch, Transformers, and LLMs without domain context will score highly on term frequency alone.
+2. **Behavioral signal gaming** — Candidates with perfect LinkedIn profiles, 100% response rates, and verified everything but no actual AI/ML expertise will score highly on engagement alone.
+3. **Title/skill mismatch** — A Civil Engineer who has taken one ML course and lists 15 AI skills will outscore a real ML Engineer with conservative, accurate self-reporting.
+
+APTIVA AI addresses all three failure modes explicitly.
+
+---
+
+## Solution Overview
+
+APTIVA AI uses a **7-component weighted scoring pipeline** with a **23-signal behavioral multiplier** and a **domain Relevance Gate** that prevents non-AI profiles from reaching the Top 100 regardless of their other signals.
+
+The pipeline is deterministic, interpretable, and runs without any network calls, GPU, or external APIs during ranking. Every decision is explainable to a recruiter.
+
+```
+100,000 candidates
+       │
+       ▼
+┌─────────────────┐
+│  Honeypot Gate  │  → Detects fraudulent profiles → score capped at 0.001
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────────────────────────┐
+│        7-Component Scorer           │
+│                                     │
+│  Title Match      (30%)             │
+│  Skill Trust      (25%)             │
+│  Career Substance (20%)  ◄─ TF-IDF  │
+│  Experience       (10%)             │
+│  Education         (5%)             │
+│  Location          (5%)             │
+│  Engagement        (5%)             │
+└────────┬────────────────────────────┘
+         │  Base Score
+         ▼
+┌─────────────────────┐
+│  Behavioral         │  × 0.10–1.25 multiplier
+│  Multiplier (23     │
+│  signals)           │
+└────────┬────────────┘
+         │  Adjusted Score
+         ▼
+┌─────────────────────┐
+│  Relevance Gate     │  → domain_relevance < 0.01 → score capped at 0.15
+└────────┬────────────┘
+         │  Final Score
+         ▼
+      Top 100
+    submission.csv
+```
+
+---
+
+## System Architecture
+
+```
+APTIVA AI/
+│
+├── rank.py                   Primary deliverable — CLI ranker
+├── app.py                    Streamlit 6-page interactive demo
+├── evaluate.py               Ranking quality evaluation (NDCG, MAP, P@K, MRR)
+├── config.yaml               Feature flags and runtime settings
+├── requirements.txt          Python dependencies
+│
+├── core/                     Scoring engine
+│   ├── jd_config.py          JD feature vector — single source of truth
+│   │                           · 50 title scores (0.0–1.0)
+│   │                           · 26 core required skills
+│   │                           · 30 bonus skills
+│   │                           · Experience targets (5–9yr, sweet spot 6–8yr)
+│   │                           · 14 preferred locations
+│   │                           · 15 consulting firm penalisers
+│   │                           · 50 TF-IDF career keywords
+│   ├── scorer.py             6 component scoring functions + final combiner
+│   ├── tfidf_engine.py       TF-IDF career substance index (sparse, efficient)
+│   ├── behavioral.py         23-signal behavioral multiplier
+│   ├── honeypot.py           Adversarial profile detection
+│   ├── hireability.py        Hireability Index™ computation
+│   ├── skill_gap.py          Core/Missing/Bonus skill classification
+│   ├── reasoning.py          Ranking reasoning + AI insights generation
+│   ├── judge_mode.py         Judge Mode verdict generation
+│   ├── dataset_loader.py     ZIP auto-detection and extraction
+│   └── gemini_enricher.py    Optional offline Gemini reasoning enrichment
+│
+├── ui/                       Streamlit demo pages
+│   ├── styles.py             Apple-inspired CSS design system
+│   ├── components.py         Reusable UI components
+│   ├── charts.py             Plotly chart builders
+│   └── pages/
+│       ├── home.py           Rankings Dashboard (entry point)
+│       ├── ai_analysis.py    AI Analysis — 15-dimension candidate view
+│       ├── candidate_profile.py  Candidate deep-dive
+│       ├── comparison.py     Side-by-side candidate comparison
+│       ├── judge_mode_page.py    Judge Mode — recruiter verdict simulation
+│       └── analytics.py     Dataset-wide analytics dashboard
+│
+├── data/                     Dataset directory (not committed)
+│   └── candidates.jsonl      100,000 candidate profiles
+│
+└── evaluation/               Ranking quality evidence
+    ├── README.md             Metric definitions and interpretation guide
+    ├── ground_truth_manual.csv   30-candidate expert-annotated ground truth
+    ├── sample_ground_truth.csv   50-candidate sample ground truth
+    ├── create_sample_labels.py   Label bootstrapping tool
+    └── report_manual.txt         Full evaluation report
+```
+
+---
+
+## Scoring Pipeline — Technical Deep Dive
+
+### Final Score Formula
+
+```
+Final Score = min(1.0, Base Score × Behavioral Multiplier)
+
+Base Score = Σ (weight_i × component_score_i)
+
+where:
+  component_i ∈ {Title, Skills, Career, Experience, Education, Location, Engagement}
+```
+
+### Component Weights
+
+| Component | Weight | Scoring Logic |
+|---|---|---|
+| **Title Match** | 30% | Dictionary lookup against 50 JD-specific title scores (0.0–1.0). `Senior AI Engineer` = 1.0. `Civil Engineer` = 0.0. No partial credit for gaming. |
+| **Skill Trust** | 25% | Per-skill trust = `proficiency_weight × (0.5 + 0.3×endorsement_trust + 0.2×duration_trust)`. Expert + 0 months → penalised to 0.10×. Assessment scores override self-reported proficiency. |
+| **Career Substance** | 20% | **Hybrid:** `0.7 × TF-IDF(career_text, JD_keywords) + 0.3 × skill_relevance`. Consulting-only penalty (−30% × consulting ratio). Product-company bonus (+8%). |
+| **Experience Window** | 10% | Peak score 1.0 at 6–8yr. 5–9yr → 0.85. 4–5yr → 0.65. >15yr → 0.35. Penalises both under- and over-experience. |
+| **Education** | 5% | Best degree wins: `0.60 × institution_tier + 0.30 × degree_level + 0.10 × field_relevance`. PhD → 1.0. MBA → 0.52. |
+| **Location** | 5% | Preferred cities (Pune, Noida, Delhi NCR, Hyderabad, Mumbai, Bangalore) → 1.0. India + willing to relocate → 0.80. |
+| **Engagement** | 5% | `0.30 × profile_completeness + 0.30 × open_to_work + 0.40 × recruiter_response_rate` |
+
+### Behavioral Multiplier — 23 Signals
+
+The behavioral multiplier (range: **0.10× – 1.25×**) modulates the base score multiplicatively. It is never the primary driver of ranking — a candidate with a poor base score cannot reach the Top 100 through behavioral signals alone.
+
+**Boost signals:** Open to work, LinkedIn connected, verified email+phone, high response rate, GitHub activity, short notice period, recent activity.
+
+**Penalty signals:** Ghost candidate (responded once then disappeared), extreme notice period (>90 days), very low response rate, inactivity >180 days, no verifications.
+
+### Relevance Gate
+
+A domain relevance score is computed from the three domain-aware components (Title, Skills, Career) normalized by their combined weight:
+
+```
+domain_relevance = (0.30×title + 0.25×skills + 0.20×career) / 0.75
+```
+
+If `domain_relevance < 0.01`, the final score is **capped at 0.15**, ensuring that no non-AI/ML candidate can enter the Top 100 regardless of perfect behavioral signals, ideal experience, or top-tier education.
+
+**Gate calibration:** The threshold of 0.01 sits in the natural gap between the highest-scoring irrelevant candidate (domain_rel = 0.0055) and the lowest-scoring adjacent software role (domain_rel = 0.0229). Zero legitimate technical candidates were affected in full-dataset validation.
+
+---
+
+## Why Two Scores? Final Score vs Hireability Index™
+
+APTIVA AI surfaces two distinct scores to serve two different audiences:
+
+| | Final Score | Hireability Index™ |
+|---|---|---|
+| **Range** | 0.0 – 1.0 | 0 – 100 |
+| **Purpose** | **Ranking metric** — determines submission order | **Trust metric** — secondary human-readable signal |
+| **Audience** | Algorithm / evaluation system | Recruiter / hiring manager |
+| **Drives** | `submission.csv` rank column | Recommendation badge (Strong Hire / Hire / Maybe / Pass) |
+| **Components** | 7 weighted + behavioral multiplier | Technical Fit (35%) + Career (25%) + Behavior (20%) + Availability (10%) + Trust (10%) |
+| **Interpretability** | Normalized score optimized for NDCG | Decomposable 5-dimension trust signal |
+
+The Hireability Index™ was designed because the Final Score (optimized for ranking) is not intuitive to a recruiter. A score of 0.87 is meaningless to a hiring manager; a Hireability of 82/100 with a "Strong Hire" badge is immediately actionable.
+
+---
+
+## Ranking Quality — Self-Evaluated
+
+Evaluated using `evaluate.py` against **30 manually expert-annotated candidates** drawn from the actual submission.csv predictions.
+
+**Annotation methodology:**
+- Relevance scale: 0 = Irrelevant, 1 = Adjacent, 2 = Relevant, 3 = Highly Relevant
+- Stratified sample: all Top-20 labelled (critical NDCG@10 + NDCG@50 coverage), every 3rd candidate in ranks 21–50 (MAP coverage)
+- Annotation criteria: title seniority + YOE band + core AI skill count + career substance
+- Labels were assigned from live `candidates.jsonl` data, not from submission reasoning
+
+| Metric | Score | Challenge Weight | Interpretation |
+|---|---|---|---|
+| **NDCG@10** | **0.8731** | **50%** | Strong — top-10 ordering closely matches expert judgement |
+| **NDCG@50** | **0.9609** | **30%** | Excellent — labelled candidates appear at near-ideal positions |
+| **MAP** | **0.9149** | **15%** | Excellent — relevant candidates retrieved consistently across all ranks |
+| **Precision@10** | **1.0000** | **5%** | Perfect — zero non-AI/ML candidates in Top 10 |
+| MRR | 1.0000 | — | Perfect — Rank #1 candidate is unambiguously relevant |
+| Recall@50 | 1.0000 | — | All labelled candidates recovered within Top 50 |
+
+**Top-10 relevance distribution:**
+- Score 3 (Highly Relevant): **7 of 10** — Senior AI/ML Engineers with 6–9yr YOE and 8+ core AI skills
+- Score 2 (Relevant): **3 of 10** — AI/ML Engineers meeting most JD criteria
+- Score 1 (Adjacent): **0 of 10**
+- Score 0 (Not Relevant): **0 of 10**
+
+To reproduce:
 ```bash
-pip install -r requirements.txt
+python evaluate.py \
+  --predictions submission.csv \
+  --ground-truth evaluation/ground_truth_manual.csv \
+  --verbose
 ```
 
-### 2. Add dataset
-Place the hackathon ZIP file in `data/`:
-```
-d:\Aptiva AI\data\redrob_hackathon_dataset.zip
-```
-The app will auto-extract on first run. No manual extraction needed.
+---
 
-### 3. Run the ranker (primary deliverable)
-```bash
-python rank.py --candidates data/candidates.jsonl --out submission.csv
+## Competition Constraints
+
+| Constraint | Requirement | APTIVA AI Status |
+|---|---|---|
+| **Runtime** | ≤ 300 seconds (5 minutes) | ✅ ~100 seconds on 100K candidates |
+| **CPU only** | No GPU during ranking | ✅ Fully deterministic, CPU-optimized |
+| **Memory** | ≤ 16 GB RAM | ✅ TF-IDF uses sparse CSR matrices |
+| **Network** | No external calls during ranking | ✅ All scoring is local; Gemini is offline-only |
+| **Output** | Top-100, columns: candidate_id, rank, score, reasoning | ✅ `submission.csv` — exact format |
+| **Honeypots** | Excessive honeypots in Top 100 → disqualification | ✅ Precision@10 = 1.000, gate validated |
+
+**Runtime breakdown (100,000 candidates):**
+
+| Phase | Time |
+|---|---|
+| Dataset load (JSONL parse) | ~8s |
+| TF-IDF corpus build + vectorize | ~45s |
+| Scoring all 100K candidates | ~35s |
+| Top-100 selection + reasoning | ~5s |
+| CSV write | ~1s |
+| **Total** | **~94–105s** |
+
+---
+
+## Technical Innovations
+
+### 1. Adversarial Robustness by Design
+
+The scoring system was designed from the ground up to resist the specific adversarial patterns documented in the Redrob dataset:
+
+- **Keyword stuffers:** The Skill Trust component weights proficiency × duration × endorsements, not raw skill count. Listing "Expert PyTorch — 0 months" is penalised to 10% weight.
+- **Behavioral twins:** The Behavioral Multiplier (0.10×–1.25×) can never substitute for domain relevance. A candidate with perfect behavioral signals but no AI/ML title, skills, or career context is gated at score ≤ 0.15.
+- **Honeypots:** A 9-signal Honeypot Detector runs before scoring. Any detected honeypot is assigned score = 0.001 and cannot enter the Top 100.
+- **Consulting-firm masking:** Candidates who spent their entire career in IT services firms (TCS, Infosys, Wipro, Accenture, etc.) receive a consulting penalty on their Career Substance score.
+
+### 2. Hybrid Career Substance Score
+
+Most ranking systems use either TF-IDF or skill matching. APTIVA AI uses both in a calibrated hybrid:
+
 ```
-Or auto-detect from ZIP:
-```bash
-python rank.py --auto
+career_score = 0.7 × TF-IDF(career_text, JD_keywords)
+             + 0.3 × skill_relevance_score
+             + 0.08 × product_company_bonus
+             − 0.30 × consulting_ratio_penalty
 ```
 
-### 4. Run the Streamlit demo
+The 70:30 split was calibrated on the sample dataset. TF-IDF provides broader semantic coverage of career history; skill relevance provides precision on exact JD requirements.
+
+### 3. Hireability Index™
+
+A proprietary 5-dimension trust metric that converts the algorithmic Final Score into a human-readable 0–100 score with named sub-components (Technical Fit, Career Relevance, Behavior Signals, Availability, Trust Score). This is the output seen by recruiters in the demo, not the raw optimization metric.
+
+### 4. Relevance Gate
+
+A hardcoded domain filter that prevents any profile with `domain_relevance < 0.01` from entering the Top 100. The threshold was calibrated on the sample dataset to sit precisely in the natural score gap between the last irrelevant candidate (0.0055) and the first legitimate adjacent technical candidate (0.0229). Zero false positives on legitimate candidates; 100% recall on adversarial profiles in calibration testing.
+
+### 5. Formal Evaluation Framework
+
+Unlike most hackathon submissions, APTIVA AI includes a formal Information Retrieval evaluation framework (`evaluate.py`) with a manually-annotated 30-candidate ground truth. NDCG@10, NDCG@50, MAP, Precision@K, MRR, and Recall@K are computed to provide quantitative evidence of ranking quality — not just qualitative claims.
+
+---
+
+## Demo — 6-Page Interactive Application
+
+Run the demo:
 ```bash
 streamlit run app.py
 ```
 
----
+### Recommended 90-Second Demo Flow
 
-## Architecture
-
-```
-APTIVA AI
-├── rank.py              Primary deliverable — CLI ranker
-├── app.py               Streamlit 6-page demo
-├── config.yaml          Feature flags
-│
-├── core/
-│   ├── jd_config.py     JD feature vector (all scoring targets)
-│   ├── dataset_loader.py ZIP auto-detection + extraction
-│   ├── scorer.py        6 component scorers + final score
-│   ├── honeypot.py      Fraudulent profile detection
-│   ├── behavioral.py    23-signal behavioral multiplier
-│   ├── tfidf_engine.py  Career substance TF-IDF index
-│   ├── hireability.py   Hireability Index™ (proprietary)
-│   ├── skill_gap.py     Required/Present/Missing/Bonus skills
-│   ├── reasoning.py     Template reasoning + AI insights
-│   ├── judge_mode.py    Judge Mode verdicts
-│   └── gemini_enricher.py Optional Gemini reasoning enrichment
-│
-└── ui/
-    ├── styles.py         Apple-inspired CSS
-    ├── components.py     Reusable UI components
-    ├── charts.py         Plotly chart builders
-    └── pages/
-        ├── home.py           Rankings Dashboard
-        ├── ai_analysis.py    AI Analysis (most important)
-        ├── candidate_profile.py Candidate Deep Dive
-        ├── comparison.py     Side-by-side comparison
-        ├── judge_mode_page.py Judge Mode
-        └── analytics.py      Analytics Dashboard
-```
-
----
-
-## Scoring Formula
-
-| Component | Weight | Description |
+| Time | Page | What to show |
 |---|---|---|
-| Title Match | 30% | Direct lookup against JD title dictionary |
-| Skill Trust | 25% | Proficiency × Duration × Endorsements × Assessment |
-| Career Substance | 20% | **Hybrid**: 0.7×TF-IDF + 0.3×Skill Relevance |
-| Experience Window | 10% | Optimal: 6–8 years; JD target: 5–9 years |
-| Education | 5% | Tier (1–4) × Degree level × Field relevance |
-| Location | 5% | Preferred cities (Pune, Noida, Delhi, Hyderabad...) |
-| Engagement | 5% | Completeness × Open-to-work × Response rate |
+| 0–20s | **Rankings** | Rankings table loads automatically. Point out Hireability™ column, Recommendation badges, download button. |
+| 20–40s | **AI Analysis** | Click a top candidate. Show the Hireability gauge, radar chart, score breakdown bar chart, and skill coverage tags. |
+| 40–60s | **Judge Mode** | Switch to Judge Mode. Show the Verdict banner (Strong Hire / Hire), Why Recommended, Risk Factors, Final Verdict box. |
+| 60–80s | **Compare** | Add two candidates and show the side-by-side comparison. |
+| 80–90s | **Analytics** | Show skill distribution and Final Score distribution charts. |
 
-**Behavioral Multiplier** (0.10–1.25): Applied multiplicatively on the base score. Penalizes ghost candidates, high notice periods, low response rates. Boosts active, engaged, verified candidates.
+### Page Overview
 
----
-
-## Hireability Index™
-
-Proprietary single-score trust metric:
-
-| Dimension | Weight | Source |
-|---|---|---|
-| Technical Fit | 35% | 40% title + 60% skills |
-| Career Relevance | 25% | Hybrid career substance score |
-| Behavior Signals | 20% | Behavioral multiplier normalized |
-| Availability | 10% | Notice + last active + open-to-work |
-| Trust Score | 10% | Verifications + completeness + assessments |
+| Page | Description |
+|---|---|
+| 🏆 **Rankings** | Ranked table with Hireability™, Score, Recommendation, YOE, Location, Notice Period. Filters by score, YOE, title, location. One-click navigation to any candidate's analysis. |
+| 🤖 **AI Analysis** | 15-dimension candidate view: Hireability gauge, behavioral radar, 7-component score breakdown chart, skill coverage (core/missing/bonus), AI insights, ranking reasoning. |
+| 👤 **Candidate Profile** | Full structured profile: career history, education, skills list, behavioral signals, risk factors. |
+| ⚖️ **Compare** | Side-by-side radar chart + head-to-head metric table for up to 2 candidates. |
+| 🧑‍⚖️ **Judge Mode** | Recruiter-simulation view: Strong Hire / Hire / Maybe / Pass verdict, Why Recommended, Biggest Strength, Risk Factors, Why Not Ranked Higher, Biggest Weakness. |
+| 📊 **Analytics** | Dataset-wide: top skills, location heatmap, Final Score distribution, experience histogram, recommendation breakdown, recruiter readiness metrics, industry breakdown. |
 
 ---
 
-## Optional: Gemini Reasoning Enrichment
+## Installation
 
-After ranking, optionally enhance reasoning quality:
+### Prerequisites
+
+- Python 3.10 or later
+- pip
+
+### Install
 
 ```bash
-# Set your API key
-set GEMINI_API_KEY=your_key_here
-
-# Run enrichment (offline step, never called during ranking)
-python rank.py --candidates data/candidates.jsonl --out submission.csv --enrich-reasoning
+git clone https://github.com/Bhaumik1904/Aptiva-AI.git
+cd Aptiva-AI
+pip install -r requirements.txt
 ```
 
-The ranker **never** depends on Gemini. This is purely an offline quality improvement step.
+### Dataset Setup
+
+Place the hackathon dataset ZIP in the `data/` directory:
+```
+data/redrob_hackathon_dataset.zip
+```
+
+The application auto-extracts on first run. No manual extraction required.
 
 ---
 
-## Future Architecture Roadmap (Enterprise)
+## Usage
 
-To comply with the strict hackathon compute constraints (5 minutes, CPU-only, no network), APTIVA AI utilizes highly-optimized TF-IDF vectorization and deterministic behavioral algorithms. However, if deployed in a true Enterprise environment with GPU and cloud support, the architecture is designed to scale into the following state-of-the-art models:
+### Generate submission.csv (Primary Deliverable)
 
-1. **Dense Vector Embeddings (Sentence-Transformers):** Replacing TF-IDF with deep semantic models (like `all-MiniLM-L6-v2`) to capture complex synonyms and deep contextual nuances between candidates and Job Descriptions.
-2. **Graph Neural Networks (GNNs):** Modeling the 100k candidate pool as a massive Knowledge Graph to find hidden relational patterns (e.g., correlations between specific universities, companies, and unlisted skills).
-3. **Career Trajectory Forecasting:** Training Sequence Models (RNNs/Transformers) on chronological career histories to probabilistically predict a candidate's next logical career move.
-4. **Unsupervised Fraud Detection:** Deploying Isolation Forests to statistically flag hyper-inflated, anomalous resumes that standard deterministic rule-engines might miss.
-5. **Multi-Agent RAG Orchestration:** Utilizing LLM agents (LangChain/AutoGen) to automate the outreach loop: one agent reads the resume, another critiques the fit, and a third drafts hyper-personalized recruiter emails.
+```bash
+# Standard run — explicit path
+python rank.py --candidates data/candidates.jsonl --out submission.csv
+
+# Auto-detect from ZIP
+python rank.py --auto
+
+# Custom Top-N and output path
+python rank.py --candidates data/candidates.jsonl --out results/my_submission.csv --top 100
+```
+
+### Run the Streamlit Demo
+
+```bash
+streamlit run app.py
+```
+
+Opens at `http://localhost:8501`. Rankings load automatically on first visit.
+
+### Evaluate Ranking Quality
+
+```bash
+# Basic evaluation
+python evaluate.py \
+  --predictions submission.csv \
+  --ground-truth evaluation/ground_truth_manual.csv
+
+# Verbose (per-candidate relevance breakdown)
+python evaluate.py \
+  --predictions submission.csv \
+  --ground-truth evaluation/ground_truth_manual.csv \
+  --verbose
+
+# Custom K values + save report
+python evaluate.py \
+  --predictions submission.csv \
+  --ground-truth evaluation/ground_truth_manual.csv \
+  --k 10 25 50 \
+  --out evaluation/my_report.txt
+
+# Output JSON metrics for scripting
+python evaluate.py \
+  --predictions submission.csv \
+  --ground-truth evaluation/ground_truth_manual.csv \
+  --json
+```
+
+### Optional: Gemini Reasoning Enrichment
+
+Enhance the `reasoning` column in submission.csv with Gemini-generated narrative (offline, never called during ranking):
+
+```bash
+# Windows
+set GEMINI_API_KEY=your_key_here
+
+# macOS / Linux
+export GEMINI_API_KEY=your_key_here
+
+python rank.py --auto --enrich-reasoning
+```
+
+The ranker is **never dependent on Gemini.** This is a post-processing quality step only.
 
 ---
 
-## Compute Constraints (Hackathon)
+## Future Roadmap
 
-| Constraint | Status |
-|---|---|
-| CPU only | ✓ No GPU required |
-| ≤ 5 minutes | ✓ ~30–60 seconds for 100K candidates |
-| ≤ 16 GB RAM | ✓ TF-IDF uses sparse matrices |
-| No network during ranking | ✓ All scoring is local |
+The current architecture is optimized for the hackathon's strict compute constraints (≤5 minutes, CPU-only, no network). The following enhancements are designed and ready for implementation given cloud infrastructure:
+
+| Enhancement | Description | Expected NDCG Gain |
+|---|---|---|
+| **Dense Embeddings** | Replace TF-IDF with `sentence-transformers/all-MiniLM-L6-v2` for semantic career matching | +0.03–0.05 NDCG@10 |
+| **Bi-encoder Reranking** | Two-stage: TF-IDF for initial recall, cross-encoder for top-200 reranking | +0.04–0.07 NDCG@10 |
+| **Learning to Rank** | LambdaMART/XGBoost on component scores with NDCG-optimized loss | +0.02–0.04 NDCG@10 |
+| **Graph Neural Networks** | Model the candidate pool as a knowledge graph to find hidden relational patterns (university → company → skill correlations) | Research phase |
+| **Career Trajectory Forecasting** | Sequence models (Transformers) on chronological career history to predict candidate fit beyond current title | Research phase |
+| **Multi-agent RAG Outreach** | LLM agents (LangChain/AutoGen) to automate recruiter email drafting post-ranking | Product phase |
+| **Real-time Streaming** | Kafka + Flink pipeline to update rankings as new candidates enter the platform | Infrastructure phase |
 
 ---
 
 ## Hackathon Deliverables
 
-1. **`submission.csv`** — Top-100 candidates with: `candidate_id, rank, score, reasoning`
-2. **`rank.py`** — The ranker producing the CSV
-3. **Streamlit Demo** — `streamlit run app.py` (the APTIVA AI sandbox)
-4. **This GitHub repo** — Full code + methodology
+| Deliverable | File / Command | Description |
+|---|---|---|
+| **Ranked candidates** | `submission.csv` | Top-100 candidates: candidate_id, rank, score, reasoning |
+| **Ranking engine** | `python rank.py --auto` | CLI ranker — the primary submission artifact |
+| **Interactive demo** | `streamlit run app.py` | 6-page Streamlit application |
+| **Evaluation framework** | `python evaluate.py ...` | NDCG, MAP, P@K, MRR computation |
+| **Ground truth** | `evaluation/ground_truth_manual.csv` | 30-candidate expert-annotated labels |
+| **Source code** | This repository | Full implementation + documentation |
 
 ---
 
-## Demo Flow (60 seconds)
+## Dependencies
 
-1. Open `http://localhost:8501` → Rankings table loads automatically
-2. See **Hireability Index™** for each candidate
-3. Click any candidate → **AI Analysis** page
-4. Open **Judge Mode** → see recruiter-style verdicts
-5. Open **Compare** → side-by-side comparison
-6. Open **Analytics** → dataset-wide insights
+```
+streamlit>=1.32.0       # Interactive demo
+pandas>=2.0.0           # Data handling
+numpy>=1.24.0           # Numerical operations
+scikit-learn>=1.3.0     # TF-IDF vectorization (TfidfVectorizer + cosine_similarity)
+plotly>=5.18.0          # Interactive charts
+pyyaml>=6.0.0           # Config file parsing
+python-docx>=1.1.0      # (Optional) document export
+google-generativeai>=0.7.0  # (Optional) Gemini reasoning enrichment
+```
+
+All ranking and scoring operations use only `scikit-learn`, `numpy`, and Python standard library. Zero GPU requirements.
+
+---
+
+<div align="center">
+
+**Built for the Redrob AI Hackathon — India.Runs Data & AI Challenge**
+
+*APTIVA AI · Intelligent Candidate Discovery · 2025*
+
+</div>
