@@ -1,0 +1,54 @@
+=================================================================
+  APTIVA AI — RANKING EVALUATION REPORT
+=================================================================
+  Predictions : submission.csv
+  Ground truth: evaluation/sample_ground_truth.csv
+  Ranked candidates : 100
+  Labelled in GT    : 50
+  Unlabelled (→ 0)  : 99
+  Relevant in GT    : 26
+
+─────────────────────────────────────────────────────────────────
+  PRIMARY METRICS  (challenge evaluation criteria)
+─────────────────────────────────────────────────────────────────
+  NDCG@10        0.2891  [████████░░░░░░░░░░░░░░░░░░░░░░]  (weight 50%)  Primary criterion
+  NDCG@50        0.2891  [████████░░░░░░░░░░░░░░░░░░░░░░]  (weight 30%)  Secondary criterion
+  MAP            0.1000  [███░░░░░░░░░░░░░░░░░░░░░░░░░░░]  (weight 15%)  Precision across all ranks
+  Precision@10   0.1000  [███░░░░░░░░░░░░░░░░░░░░░░░░░░░]  (weight 5%)  Top-10 precision
+
+─────────────────────────────────────────────────────────────────
+  ADDITIONAL METRICS
+─────────────────────────────────────────────────────────────────
+  MRR            0.1000    Mean Reciprocal Rank
+  Recall@10      1.0000    Fraction of relevant docs in top-10
+  Recall@50      1.0000    Fraction of relevant docs in top-50
+  Precision@50   0.0200    Top-50 precision
+
+─────────────────────────────────────────────────────────────────
+  RELEVANCE DISTRIBUTION
+─────────────────────────────────────────────────────────────────
+  Top-10 relevance breakdown:
+    [3] Highly Relevant :   0  (  0.0%)
+    [2] Relevant       :   1  ( 10.0%)
+    [1] Adjacent        :   0  (  0.0%)
+    [0] Not Relevant   :   9  ( 90.0%)
+
+  Top-50 relevance breakdown:
+    [3] Highly Relevant :   0  (  0.0%)
+    [2] Relevant       :   1  (  2.0%)
+    [1] Adjacent        :   0  (  0.0%)
+    [0] Not Relevant   :  49  ( 98.0%)
+
+─────────────────────────────────────────────────────────────────
+  SCORE INTERPRETATION
+─────────────────────────────────────────────────────────────────
+  NDCG@10 = 0.2891 → Weak — significant ordering problems detected
+
+  Relevance scale used:
+    [0] Not Relevant  (non-AI/ML profile, honeypot, trap)
+    [1] Adjacent      (technical but not AI/ML core)
+    [2] Relevant      (AI/ML engineer, meets most JD criteria)
+    [3] Highly Relevant (exact JD match, senior AI/ML engineer)
+  Threshold for 'relevant': rel >= 1 (used in MAP, P@K, MRR)
+
+=================================================================

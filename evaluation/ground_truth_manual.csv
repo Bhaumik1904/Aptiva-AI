@@ -1,0 +1,31 @@
+candidate_id,rank,relevance,title,confidence,notes
+CAND_0071974,1,3,Senior AI Engineer,HIGH,Senior+7.8yr+14 core AI skills
+CAND_0081846,2,3,Lead AI Engineer,HIGH,Lead+6.7yr+14 core AI skills+IIT
+CAND_0018499,3,3,Senior Machine Learning Engineer,HIGH,Senior+7.2yr+12 core AI skills+MIT
+CAND_0077337,4,3,Staff Machine Learning Engineer,HIGH,Staff+7.0yr+12 core AI skills+GaTech
+CAND_0006418,5,2,Machine Learning Engineer,HIGH,No Senior prefix; 5.7yr+9 skills+Stanford
+CAND_0002025,6,3,Senior AI Engineer,HIGH,Senior+5.9yr+14 core AI skills
+CAND_0069905,7,2,Applied ML Engineer,HIGH,No Senior prefix; 6.6yr+11 skills
+CAND_0088025,8,3,Staff Machine Learning Engineer,HIGH,Staff+8.6yr+10 skills+PhD
+CAND_0068351,9,3,Lead AI Engineer,HIGH,Lead+6.4yr+8 skills+Ranking Systems
+CAND_0000031,10,2,Recommendation Systems Engineer,HIGH,No Senior prefix; 6.0yr
+CAND_0046525,11,3,Senior Machine Learning Engineer,HIGH,Senior+6.1yr+17 skills
+CAND_0050454,12,2,AI Engineer,HIGH,No Senior prefix; 6.8yr+15 skills
+CAND_0041669,13,2,Recommendation Systems Engineer,MEDIUM,No Senior prefix; 8.0yr+20 skills
+CAND_0011162,14,2,Recommendation Systems Engineer,HIGH,No Senior prefix; 5.8yr+17 skills
+CAND_0044855,15,2,Senior Data Scientist,MEDIUM,DS title is adjacent; check ML depth
+CAND_0062247,16,2,AI Engineer,HIGH,No Senior prefix; 7.3yr+14 skills+IIT Bombay
+CAND_0007009,17,2,Recommendation Systems Engineer,MEDIUM,No Senior prefix; 7.9yr+7 skills
+CAND_0077285,18,2,Recommendation Systems Engineer,HIGH,No Senior prefix; 5.5yr+9 skills
+CAND_0036184,19,2,Recommendation Systems Engineer,HIGH,No Senior prefix; 6.0yr+14 skills
+CAND_0027691,20,2,NLP Engineer,HIGH,No Senior prefix; 6.5yr+8 skills
+CAND_0042506,21,2,Search Engineer,HIGH,Under-exp 4.2yr; 14 skills offset YOE
+CAND_0005260,24,3,Senior NLP Engineer,HIGH,Senior+5.2yr+10 skills+IIIT Bangalore
+CAND_0068811,27,2,Applied ML Engineer,HIGH,No Senior prefix; 8.0yr+12 skills+PhD
+CAND_0072660,31,2,Machine Learning Engineer,HIGH,No Senior prefix; 7.1yr+8 skills
+CAND_0086022,35,3,Senior Applied Scientist,HIGH,Senior+5.3yr+14 skills+Stanford
+CAND_0096142,39,2,Applied ML Engineer,HIGH,No Senior prefix; 5.0yr+7 skills
+CAND_0042100,42,2,Machine Learning Engineer,HIGH,No Senior prefix; 7.3yr+9 skills
+CAND_0064326,46,2,Search Engineer,HIGH,No Senior prefix; 7.6yr+10 skills
+CAND_0052682,49,2,NLP Engineer,HIGH,No Senior prefix; 6.6yr+8 skills
+CAND_0052335,50,2,Applied ML Engineer,HIGH,No Senior prefix; 6.4yr+9 skills
