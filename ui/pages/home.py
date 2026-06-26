@@ -17,9 +17,21 @@ from ui.styles import page_header, section_label
 
 def render(state: dict):
     """Render the Rankings Dashboard."""
+    _ICON_TROPHY = (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" '
+        'fill="none" stroke="#0071E3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>'
+        '<path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>'
+        '<path d="M4 22h16"/>'
+        '<path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>'
+        '<path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>'
+        '<path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>'
+        '</svg>'
+    )
     page_header(
         "Candidate Rankings",
         "Top candidates ranked for Senior AI Engineer · Redrob AI",
+        _ICON_TROPHY,
     )
 
     results = state.get("results", [])
@@ -185,6 +197,57 @@ def render(state: dict):
         selected_cid = candidate_options[selected_label]
         st.session_state["selected_candidate_id"] = selected_cid  # persist across pages
 
+        # ── Quick Action Buttons ─────────────────────────────────────────
+        # SVG icons matching the sidebar (Lucide-style, 15×15, stroke)
+        _BTN_CSS = """
+<style>
+.qa-btn-row { display:flex; gap:0.75rem; margin:0.5rem 0 0.1rem; }
+.qa-btn {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  gap:0.5rem; padding:0.5rem 0.75rem;
+  background:#F5F5F7; border:1px solid #D2D2D7; border-radius:6px;
+  font-size:0.875rem; font-weight:600; color:#1D1D1F;
+  user-select:none;
+  transition:background 0.12s, border-color 0.12s;
+}
+.qa-btn:hover { background:#E8F2FF; border-color:#0071E3; color:#0071E3; }
+.qa-btn svg { flex-shrink:0; }
+/* Invisible overlay buttons — same technique as sidebar */
+.qa-wrapper [data-testid="stBaseButton-secondary"],
+.qa-wrapper [data-testid="stBaseButton-primary"] {
+  opacity: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  pointer-events: all !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+.qa-wrapper .stButton {
+  margin-top: -2.25rem !important;
+  margin-bottom: 0 !important;
+}
+</style>"""
+
+        _ICON_PROFILE  = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+        _ICON_ANALYSIS = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+        _ICON_JUDGE    = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+        _ICON_COMPARE  = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
+
+        st.markdown(
+            f"""{_BTN_CSS}
+<div class="qa-btn-row">
+  <div class="qa-btn">{_ICON_PROFILE} View Profile</div>
+  <div class="qa-btn">{_ICON_ANALYSIS} AI Analysis</div>
+  <div class="qa-btn">{_ICON_JUDGE} Judge Mode</div>
+  <div class="qa-btn">{_ICON_COMPARE} Add to Compare</div>
+</div>""",
+            unsafe_allow_html=True,
+        )
+
+        # Invisible Streamlit buttons overlaid for click capture
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             if st.button("View Profile", use_container_width=True, key="home_view_profile"):

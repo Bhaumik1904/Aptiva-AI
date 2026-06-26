@@ -475,12 +475,17 @@ hr { border: none !important; border-top: 1px solid #E8E8ED !important; margin: 
     )
 
 def page_header(title: str, subtitle: str = "", icon: str = ""):
-    """Render a consistent page header."""
-    icon_str = f"{icon} " if icon else ""
+    """Render a consistent page header. icon accepts emoji text or raw SVG HTML."""
+    icon_html = (
+        f'<span style="display:inline-flex;align-items:center;'
+        f'vertical-align:middle;margin-right:0.375rem;color:#0071E3">{icon}</span>'
+        if icon else ""
+    )
     st.markdown(
         f"""
 <div style="margin-bottom:1.5rem">
-  <h1 style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.025em">{icon_str}{title}</h1>
+  <h1 style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.025em;
+             display:flex;align-items:center;gap:0">{icon_html}{title}</h1>
   {"<p style='margin:0.25rem 0 0;color:#6E6E73;font-size:0.9375rem'>" + subtitle + "</p>" if subtitle else ""}
 </div>
 """,
