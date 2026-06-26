@@ -623,15 +623,9 @@ def main():
     # Render sidebar
     render_sidebar(config, loader)
 
-    # Build state dict for pages
-    state = {
-        "results":              st.session_state["results"],
-        "total_candidates":     st.session_state["total_candidates"],
-        "submission_csv":       st.session_state["submission_csv"],
-        "selected_candidate_id": st.session_state["selected_candidate_id"],
-        "compare_list":         st.session_state["compare_list"],
-        "page":                 st.session_state["page"],
-    }
+    # Pass session state directly — pages read/write the live store.
+    # (A copy dict would silently discard writes, breaking navigation context.)
+    state = st.session_state
 
     # Route to page
     page = st.session_state["page"]
