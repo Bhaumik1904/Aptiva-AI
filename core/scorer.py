@@ -1,6 +1,6 @@
 """
 APTIVA AI — Scoring Engine
-All 6 component scoring functions + final score combiner.
+All 7 component scoring functions + final score combiner.
 Implements the hybrid career scoring: 0.7 × TF-IDF + 0.3 × Skill Relevance.
 """
 
