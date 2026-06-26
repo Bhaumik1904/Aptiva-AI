@@ -20,7 +20,32 @@ from ui.styles import page_header, section_label
 
 def render(state: dict):
     """Render the full Candidate Profile page."""
-    page_header("Candidate Profile", "Full profile deep dive", "👤")
+    page_header("Candidate Profile", "Full profile deep dive")
+
+    # ── Candidate Selector ────────────────────────────────────────────────
+    results = state.get("results", [])
+    if not results:
+        st.info("No candidates loaded. Run the ranker first.")
+        return
+
+    candidate_options = {
+        f"#{r['rank']} · {r['candidate']['candidate_id']} · {r['candidate']['profile'].get('current_title', '')[:30]}": r["candidate"]["candidate_id"]
+        for r in results
+    }
+
+    _, col_sel = st.columns([2, 1])
+    with col_sel:
+        new_selection = st.selectbox(
+            "Select Candidate",
+            list(candidate_options.keys()),
+            index=next((i for i, v in enumerate(candidate_options.values()) if v == state.get("selected_candidate_id")), 0),
+            key="profile_select",
+        )
+        if new_selection:
+            new_cid = candidate_options[new_selection]
+            if new_cid != state.get("selected_candidate_id"):
+                st.session_state["selected_candidate_id"] = new_cid
+                st.rerun()
 
     result = _get_selected_result(state)
     if not result:
@@ -190,7 +215,7 @@ def render(state: dict):
 
         # Navigate to Judge Mode
         st.markdown("---")
-        if st.button("🧑‍⚖️ Open in Judge Mode", use_container_width=False):
+        if st.button("Open in Judge Mode", use_container_width=False):
             state["page"] = "judge_mode"
             st.rerun()
 

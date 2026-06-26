@@ -149,7 +149,7 @@ label, .stMarkdown, .stText { color: #1D1D1F !important; }
   background-color: #0071E3 !important;
   color: #FFFFFF !important;
   border: none !important;
-  border-radius: 8px !important;
+  border-radius: 6px !important;
   font-size: 0.875rem !important;
   font-weight: 600 !important;
   padding: 0.5rem 1rem !important;
@@ -192,8 +192,27 @@ label, .stMarkdown, .stText { color: #1D1D1F !important; }
   background-color: #F5F5F7 !important;
   color: #0071E3 !important;
   border: 1px solid #D2D2D7 !important;
-  border-radius: 8px !important;
+  border-radius: 6px !important;
   font-weight: 600 !important;
+}
+
+/* ── Sidebar nav: overlay buttons are invisible — HTML items do the visual */
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {
+  opacity: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  pointer-events: all !important; /* still captures clicks */
+  position: relative !important;
+  z-index: 1 !important;
+}
+/* The visible HTML nav row is above; the invisible button sits behind it */
+[data-testid="stSidebar"] .stButton {
+  margin-top: -2.375rem !important; /* pull button up to overlap the HTML row */
+  margin-bottom: 0 !important;
 }
 
 /* ── Inputs / Selects ────────────────────────────────────────────────── */

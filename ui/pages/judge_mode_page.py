@@ -16,7 +16,6 @@ def render(state: dict):
     page_header(
         "Judge Mode",
         "Simulate how a senior recruiter evaluates this candidate · APTIVA AI",
-        "🧑‍⚖️",
     )
 
     # ── Candidate Selection ───────────────────────────────────────────────

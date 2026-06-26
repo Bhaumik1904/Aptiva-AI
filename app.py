@@ -148,26 +148,46 @@ def render_sidebar(config: dict, loader: DatasetLoader):
         )
 
         # Navigation
+        # SVG icons — Lucide-style, 16×16, stroke-based
+        _ICONS = {
+            "home": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+            "ai_analysis": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+            "candidate_profile": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+            "comparison": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+            "judge_mode": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+            "analytics": '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>',
+        }
+
         pages = [
-            ("home",              "🏆", "Rankings"),
-            ("ai_analysis",       "🤖", "AI Analysis"),
-            ("candidate_profile", "👤", "Candidate Profile"),
-            ("comparison",        "⚖️", "Compare"),
-            ("judge_mode",        "🧑‍⚖️", "Judge Mode"),
-            ("analytics",         "📊", "Analytics"),
+            ("home",              "Rankings"),
+            ("ai_analysis",       "AI Analysis"),
+            ("candidate_profile", "Candidate Profile"),
+            ("comparison",        "Compare"),
+            ("judge_mode",        "Judge Mode"),
+            ("analytics",         "Analytics"),
         ]
 
         st.markdown('<div style="font-size:0.6875rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Navigation</div>', unsafe_allow_html=True)
 
-        for page_key, icon, label in pages:
+        for page_key, label in pages:
             is_active = st.session_state["page"] == page_key
-            btn_style = "background:#E8F2FF;color:#0071E3;border:none;" if is_active else "background:transparent;color:#1D1D1F;border:none;"
-            if st.button(
-                f"{icon}  {label}",
-                key=f"nav_{page_key}",
-                use_container_width=True,
-                type="secondary" if not is_active else "primary",
-            ):
+            icon_svg = _ICONS.get(page_key, "")
+            active_style = (
+                "background:#E8F2FF;color:#0071E3;border:1px solid #C8DEFF;"
+                if is_active else
+                "background:transparent;color:#1D1D1F;border:1px solid transparent;"
+            )
+            # Render as an HTML nav item so the SVG icon shows cleanly
+            st.markdown(
+                f'<div style="{active_style}display:flex;align-items:center;gap:0.625rem;'
+                f'padding:0.5rem 0.75rem;border-radius:6px;margin:0.125rem 0;'
+                f'font-size:0.875rem;font-weight:500;cursor:pointer">'
+                f'{icon_svg}<span>{label}</span></div>',
+                unsafe_allow_html=True,
+            )
+            # Invisible button that captures the click
+            if st.button(label, key=f"nav_{page_key}", use_container_width=True,
+                         type="secondary" if not is_active else "primary"):
                 st.session_state["page"] = page_key
                 st.rerun()
 

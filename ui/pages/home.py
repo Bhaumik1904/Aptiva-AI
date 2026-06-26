@@ -20,7 +20,6 @@ def render(state: dict):
     page_header(
         "Candidate Rankings",
         "Top candidates ranked for Senior AI Engineer · Redrob AI",
-        "🏆",
     )
 
     results = state.get("results", [])
@@ -184,34 +183,39 @@ def render(state: dict):
 
     if selected_label:
         selected_cid = candidate_options[selected_label]
-        state["selected_candidate_id"] = selected_cid
+        st.session_state["selected_candidate_id"] = selected_cid  # persist across pages
 
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            if st.button("👤 View Profile", use_container_width=True):
-                state["page"] = "candidate_profile"
+            if st.button("View Profile", use_container_width=True, key="home_view_profile"):
+                st.session_state["page"] = "candidate_profile"
                 st.rerun()
         with col2:
-            if st.button("🤖 AI Analysis", use_container_width=True):
-                state["page"] = "ai_analysis"
+            if st.button("AI Analysis", use_container_width=True, key="home_ai_analysis"):
+                st.session_state["page"] = "ai_analysis"
                 st.rerun()
         with col3:
-            if st.button("🧑‍⚖️ Judge Mode", use_container_width=True):
-                state["page"] = "judge_mode"
+            if st.button("Judge Mode", use_container_width=True, key="home_judge_mode"):
+                st.session_state["page"] = "judge_mode"
                 st.rerun()
         with col4:
-            if st.button("⚖️ Add to Compare", use_container_width=True):
-                if "compare_list" not in state:
-                    state["compare_list"] = []
-                if selected_cid not in state["compare_list"]:
-                    state["compare_list"].append(selected_cid)
-                    st.success(f"Added {selected_cid} to comparison")
+            if st.button("Add to Compare", use_container_width=True, key="home_compare"):
+                compare = st.session_state.get("compare_list", [])
+                if selected_cid in compare:
+                    st.info(f"{selected_cid} is already in the comparison list.")
+                elif len(compare) >= 2:
+                    st.warning("Compare list is full (max 2). Remove a candidate first.")
+                else:
+                    compare.append(selected_cid)
+                    st.session_state["compare_list"] = compare
+                    slot = "Candidate A" if len(compare) == 1 else "Candidate B"
+                    st.success(f"Added {selected_cid} as {slot}.")
 
     # ── Download ──────────────────────────────────────────────────────────
     st.markdown("---")
     if state.get("submission_csv"):
         st.download_button(
-            "⬇ Download submission.csv",
+            "Download submission.csv",
             data=state["submission_csv"],
             file_name="submission.csv",
             mime="text/csv",
