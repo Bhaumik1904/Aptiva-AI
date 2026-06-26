@@ -118,14 +118,16 @@ def run_ranking(candidates_path_str: str, top_n: int = 100) -> dict:
 # ── Session State Init ────────────────────────────────────────────────────────
 def init_state():
     defaults = {
-        "page":                 "home",
+        "page":                  "home",
         "selected_candidate_id": None,
-        "compare_list":         [],
-        "results":              [],
-        "total_candidates":     0,
-        "submission_csv":       "",
-        "ranking_done":         False,
-        "dataset_status":       None,
+        "compare_list":          [],
+        "results":               [],
+        "total_candidates":      0,
+        "submission_csv":        "",
+        "ranking_done":          False,
+        "ranking_running":       False,
+        "ranking_error":         None,
+        "dataset_status":        None,
     }
     for key, val in defaults.items():
         if key not in st.session_state:
@@ -192,10 +194,20 @@ def render_sidebar(config: dict, loader: DatasetLoader):
 
         # Run Ranking Button
         if candidates_path:
-            if st.button("▶ Run Ranking Analysis", use_container_width=True, type="primary"):
-                st.session_state["ranking_done"] = False
-                st.cache_data.clear()
-                st.rerun()
+            if st.session_state.get("ranking_running"):
+                # Disabled state shown while analysis is running
+                st.markdown(
+                    '<div style="background:#F5F5F7;border-radius:8px;padding:0.5rem 0.75rem;'
+                    'font-size:0.8125rem;color:#86868B;text-align:center;cursor:not-allowed">'
+                    '⏳ Running Analysis…</div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                if st.button("▶ Run Ranking Analysis", use_container_width=True, type="primary"):
+                    st.session_state["ranking_done"]    = False
+                    st.session_state["ranking_error"]   = None
+                    st.cache_data.clear()
+                    st.rerun()
         else:
             st.markdown(
                 '<div style="font-size:0.8125rem;color:#86868B">Upload candidates to run ranking</div>',
@@ -251,17 +263,37 @@ def auto_run_ranking(loader: DatasetLoader):
     _CSS = """
 <style>
 @keyframes aptiva-fadein {
-  from { opacity:0; transform:translateY(6px); }
-  to   { opacity:1; transform:translateY(0); }
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+@keyframes aptiva-fadeout {
+  from { opacity:1; }
+  to   { opacity:0; }
 }
 @keyframes aptiva-label-pulse {
   0%,100% { opacity:1; }
   50%      { opacity:0.6; }
 }
+.aptiva-exiting {
+  animation: aptiva-fadeout 0.4s ease forwards !important;
+  pointer-events: none !important;
+}
 .aptiva-loader {
-  display:flex; flex-direction:column; align-items:center;
-  padding:4rem 1rem 3rem; animation:aptiva-fadein 0.35s ease;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  /* True full-screen: covers sidebar, main area, and everything else */
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 9999999;
+  background: #FFFFFF;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  animation: aptiva-fadein 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Capture all pointer events so nothing behind can be clicked */
+  pointer-events: all;
+  cursor: wait;
+  /* Scroll lock via overflow */
+  overflow: hidden;
 }
 .aptiva-logo {
   font-size:1.625rem; font-weight:800; color:#1D1D1F;
@@ -403,10 +435,23 @@ def auto_run_ranking(loader: DatasetLoader):
         else:
             eta_block = f'<div class="aptiva-eta-label">&nbsp;</div><div class="aptiva-eta-value">&nbsp;</div>'
 
+        # Inject scroll lock JS in every frame (persists on DOM as long as overlay is visible)
+        scroll_lock_js = """
+<script>
+(function(){
+  document.documentElement.style.overflow='hidden';
+  document.body.style.overflow='hidden';
+  // Also lock Streamlit's own scroll container
+  var main=document.querySelector('[data-testid="stAppViewContainer"]');
+  if(main) main.style.overflow='hidden';
+})();
+</script>"""
+
         html = f"""{_CSS}
-<div class="aptiva-loader">
-  <div class="aptiva-logo">⬡ APTIVA AI</div>
-  <div class="aptiva-sub">Intelligent Candidate Ranking · Redrob AI Hackathon</div>
+{scroll_lock_js}
+<div class="aptiva-loader" id="aptiva-overlay">
+  <div class="aptiva-logo">&#x2B21; APTIVA AI</div>
+  <div class="aptiva-sub">Intelligent Candidate Ranking &middot; Redrob AI Hackathon</div>
 
   <div class="aptiva-bar-track">
     <div class="aptiva-bar-fill" style="width:{bar_pct}%"></div>
@@ -442,23 +487,62 @@ def auto_run_ranking(loader: DatasetLoader):
   <div class="aptiva-eta">{eta_block}</div>
 
   <div class="aptiva-footer">
-    Deterministic Ranking • Explainable AI • CPU Only • Fully Reproducible
+    Deterministic Ranking &bull; Explainable AI &bull; CPU Only &bull; Fully Reproducible
   </div>
 </div>"""
         loading_slot.markdown(html, unsafe_allow_html=True)
 
+    # ── Mark as running (disables sidebar button) ─────────────────────────
+    st.session_state["ranking_running"] = True
+
     # Stage 0 — dataset loading (renders before blocking call)
     _render(0, 0.05, "~90 seconds")
     time.sleep(0.08)
-    # Stage 1 — TF-IDF indexing (the bulk of wall-clock time)
+    # Stage 1 — TF-IDF indexing (bulk of wall-clock time)
     _render(1, 0.10, "~80 seconds")
 
     # ── blocking ranking call ─────────────────────────────────────────────
-    result_data = run_ranking(str(candidates_path))
+    result_data = None
+    try:
+        result_data = run_ranking(str(candidates_path))
+    except Exception as exc:
+        # ── Error state: show clean failure overlay ───────────────────────
+        error_html = f"""{_CSS}
+<script>
+document.documentElement.style.overflow='hidden';
+document.body.style.overflow='hidden';
+</script>
+<div class="aptiva-loader" id="aptiva-overlay">
+  <div class="aptiva-logo">&#x2B21; APTIVA AI</div>
+  <div class="aptiva-sub">Intelligent Candidate Ranking &middot; Redrob AI Hackathon</div>
+  <div style="margin:2rem 0;text-align:center">
+    <div style="font-size:2rem;margin-bottom:0.75rem">&#9888;</div>
+    <div style="font-size:1rem;font-weight:600;color:#CC0000;margin-bottom:0.5rem">Initialization Failed</div>
+    <div style="font-size:0.8125rem;color:#6E6E73;max-width:360px">{exc}</div>
+  </div>
+  <div style="margin-top:1rem;font-size:0.8125rem;color:#86868B;text-align:center">
+    Click <strong>&#9654; Run Ranking Analysis</strong> in the sidebar to retry.
+  </div>
+  <div class="aptiva-footer" style="margin-top:2rem">
+    Deterministic Ranking &bull; Explainable AI &bull; CPU Only &bull; Fully Reproducible
+  </div>
+</div>"""
+        loading_slot.markdown(error_html, unsafe_allow_html=True)
+        time.sleep(3.0)   # Show error for 3 s, then unlock UI
+        # Unlock scroll before clearing
+        loading_slot.markdown(
+            '<script>document.documentElement.style.overflow="";'
+            'document.body.style.overflow="";</script>',
+            unsafe_allow_html=True,
+        )
+        time.sleep(0.1)
+        loading_slot.empty()
+        st.session_state["ranking_running"] = False
+        st.session_state["ranking_error"]   = str(exc)
+        return
     # ─────────────────────────────────────────────────────────────────────
 
     # Smooth sweep through remaining stages with interpolated progress.
-    # Each step pauses briefly so the judge sees the pipeline advance.
     _render(2, 0.80, "~4 seconds");  time.sleep(0.12)
     _render(2, 0.85, "~3 seconds");  time.sleep(0.12)
     _render(3, 0.88, "~2 seconds");  time.sleep(0.12)
@@ -470,19 +554,36 @@ def auto_run_ranking(loader: DatasetLoader):
     _render(4, 1.00, "", complete=True)
     time.sleep(0.75)   # 700-800 ms dwell before clearing (per spec)
 
-    # Fade-out: replace slot with an invisible placeholder, then clear
-    loading_slot.markdown(
-        '<div style="opacity:0;height:1px;transition:opacity 0.4s ease"></div>',
-        unsafe_allow_html=True,
-    )
-    time.sleep(0.15)
+    # Fade-out: switch to aptiva-exiting class + unlock scroll simultaneously
+    fadeout_html = f"""{_CSS}
+<script>
+document.documentElement.style.overflow='';
+document.body.style.overflow='';
+var main=document.querySelector('[data-testid="stAppViewContainer"]');
+if(main) main.style.overflow='';
+</script>
+<div class="aptiva-loader aptiva-exiting" id="aptiva-overlay">
+  <div class="aptiva-logo">&#x2B21; APTIVA AI</div>
+  <div class="aptiva-sub">Intelligent Candidate Ranking &middot; Redrob AI Hackathon</div>
+  <div class="aptiva-bar-track"><div class="aptiva-bar-fill" style="width:100%"></div></div>
+  <div style="text-align:center;margin-top:2rem">
+    <div style="font-size:0.6875rem;color:#1A8917;text-transform:uppercase;letter-spacing:0.06em">
+      &#x2713;&nbsp; Initialization Complete</div>
+    <div style="font-size:1.0625rem;font-weight:600;color:#1A8917;margin-top:0.25rem">
+      Launching APTIVA AI&hellip;</div>
+  </div>
+</div>"""
+    loading_slot.markdown(fadeout_html, unsafe_allow_html=True)
+    time.sleep(0.45)   # Match aptiva-fadeout animation duration (0.4s)
     loading_slot.empty()
 
-    if result_data["results"]:
+    # ── Commit results to session state ───────────────────────────────────
+    st.session_state["ranking_running"] = False
+    if result_data and result_data["results"]:
         st.session_state["results"]           = result_data["results"]
-        st.session_state["total_candidates"]   = result_data["total"]
-        st.session_state["submission_csv"]     = result_data["submission_csv"]
-        st.session_state["ranking_done"]       = True
+        st.session_state["total_candidates"]  = result_data["total"]
+        st.session_state["submission_csv"]    = result_data["submission_csv"]
+        st.session_state["ranking_done"]      = True
         # Auto-select top candidate
         if not st.session_state.get("selected_candidate_id"):
             st.session_state["selected_candidate_id"] = result_data["results"][0]["candidate"]["candidate_id"]
