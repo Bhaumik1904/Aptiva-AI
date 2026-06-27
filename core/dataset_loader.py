@@ -173,6 +173,12 @@ class DatasetLoader:
         """Return path to sample_candidates.json specifically."""
         return self.discovered.get("sample_candidates")
 
+    @property
+    def is_sample_dataset(self) -> bool:
+        """Return True if the active dataset is the sample dataset."""
+        path = self.get_candidates_path()
+        return path is not None and path.name == "sample_candidates.json"
+
     def load_schema(self) -> Optional[Dict]:
         """Load candidate_schema.json if available."""
         schema_path = self.discovered.get("candidate_schema")
@@ -181,9 +187,9 @@ class DatasetLoader:
                 return json.load(f)
         return None
 
-    def load_sample_candidates(self) -> List[Dict]:
+    def load_sample_candidates(self, target_path: Optional[Path] = None) -> List[Dict]:
         """Load sample_candidates.json as a list of dicts."""
-        path = self.discovered.get("sample_candidates")
+        path = target_path or self.discovered.get("sample_candidates")
         if not path or not path.exists():
             return []
         with open(path, encoding="utf-8") as f:
@@ -206,7 +212,7 @@ class DatasetLoader:
 
         if target.suffix == ".json":
             # JSON array — load all at once
-            candidates = self.load_sample_candidates()
+            candidates = self.load_sample_candidates(target)
             yield from candidates
             return
 

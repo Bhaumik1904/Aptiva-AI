@@ -149,6 +149,12 @@ APTIVA AI/
     └── report_manual.txt         Full evaluation report
 ```
 
+### Dual-Dataset Architecture
+
+APTIVA AI seamlessly supports dual-environment execution with zero configuration changes required:
+- **Production Mode:** Automatically detects and streams `candidates.jsonl` (the complete 100K dataset) when deployed locally or in a dedicated compute environment.
+- **Demo Mode:** If the full dataset is unavailable (e.g., on Streamlit Cloud), the system dynamically falls back to `sample_candidates.json`. The UI automatically detects this state and renders a professional `Demo Mode` banner without interrupting the user experience or throwing exceptions.
+
 ---
 
 ## Scoring Pipeline — Technical Deep Dive

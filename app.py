@@ -608,14 +608,14 @@ if(main) main.style.overflow='';
 
     # ── Commit results to session state ───────────────────────────────────
     st.session_state["ranking_running"] = False
-    if result_data and result_data["results"]:
-        st.session_state["results"]           = result_data["results"]
-        st.session_state["total_candidates"]  = result_data["total"]
-        st.session_state["submission_csv"]    = result_data["submission_csv"]
+    if result_data is not None:
+        st.session_state["results"]           = result_data.get("results", [])
+        st.session_state["total_candidates"]  = result_data.get("total", 0)
+        st.session_state["submission_csv"]    = result_data.get("submission_csv", "")
         st.session_state["ranking_done"]      = True
-        # Auto-select top candidate
-        if not st.session_state.get("selected_candidate_id"):
-            st.session_state["selected_candidate_id"] = result_data["results"][0]["candidate"]["candidate_id"]
+        # Auto-select top candidate if available
+        if st.session_state["results"] and not st.session_state.get("selected_candidate_id"):
+            st.session_state["selected_candidate_id"] = st.session_state["results"][0]["candidate"]["candidate_id"]
 
 
 
@@ -631,6 +631,10 @@ def main():
 
     # Render sidebar
     render_sidebar(config, loader)
+
+    # Banner for Demo Mode
+    if loader.is_sample_dataset:
+        st.info("Demo Mode — Running on the official sample dataset.")
 
     # Pass session state directly — pages read/write the live store.
     # (A copy dict would silently discard writes, breaking navigation context.)
