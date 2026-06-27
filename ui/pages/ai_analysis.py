@@ -1,7 +1,6 @@
 """
 APTIVA AI — AI Analysis Page
-The most polished and impressive screen. Shows every analytical dimension
-of a candidate in a single unified view.
+Deep multi-dimension intelligence report for a single candidate.
 """
 
 import streamlit as st
@@ -22,6 +21,7 @@ from ui.components import (
     render_recommendation_badge,
     render_score_breakdown,
 )
+from ui.icons import icon
 from ui.styles import page_header, section_label
 
 
@@ -32,7 +32,7 @@ def render(state: dict):
         "Deep intelligence on every candidate dimension · Powered by APTIVA AI",
     )
 
-    # ── Candidate Selection ───────────────────────────────────────────────
+    # -- Candidate Selection -----------------------------------------------
     results = state.get("results", [])
     if not results:
         st.info("No candidates loaded. Run the ranker first.")
@@ -76,7 +76,7 @@ def render(state: dict):
     risk_score = components.get("risk_score", 0)
     honeypot_flags = components.get("honeypot_flags", [])
 
-    # ── Profile Header ────────────────────────────────────────────────────
+    # -- Profile Header ----------------------------------------------------
     render_profile_header(candidate, components, rank)
 
     if honeypot_flags:
@@ -84,7 +84,7 @@ def render(state: dict):
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── TOP ROW: 6 Key Metrics ────────────────────────────────────────────
+    # -- TOP ROW: 6 Key Metrics --------------------------------------------
     section_label("KEY METRICS")
     st.markdown(
         """
@@ -94,7 +94,7 @@ def render(state: dict):
     <span style="color:#6E6E73"> — Ranking metric (0–1.0, drives submission order)</span>
   </div>
   <div style="font-size:0.8125rem;color:#1D1D1F">
-    <span style="font-weight:700;color:#1D1D1F">Hireability Index™</span>
+    <span style="font-weight:700;color:#1D1D1F">Hireability Index</span>
     <span style="color:#6E6E73"> — Recruiter trust score (0–100, 5-dimension)</span>
   </div>
 </div>""",
@@ -104,25 +104,26 @@ def render(state: dict):
     with m1:
         st.metric("Overall Score", f"{score:.4f}")
     with m2:
-        st.metric("Hireability Index™", f"{hi_score:.0f}/100")
+        st.metric("Hireability Index", f"{hi_score:.0f}/100")
     with m3:
         st.metric("Rank", f"#{rank}")
     with m4:
         st.metric("Confidence", f"{confidence:.0%}")
     with m5:
-        risk_delta = "🟢 Low" if risk_score < 0.25 else "🟡 Medium" if risk_score < 0.5 else "🔴 High"
-        st.metric("Risk", risk_delta)
+        risk_label = "Low" if risk_score < 0.25 else "Medium" if risk_score < 0.5 else "High"
+        risk_color = "#1A8917" if risk_score < 0.25 else "#C47000" if risk_score < 0.5 else "#CC0000"
+        st.metric("Risk", risk_label, delta=None)
     with m6:
         skill_gap = analyze_skill_gap(candidate)
         st.metric("Skill Match", f"{skill_gap.get('core_match_pct', 0):.0f}%")
 
     st.markdown("---")
 
-    # ── MIDDLE ROW: Gauge + Hireability Breakdown + Behavior ─────────────
+    # -- MIDDLE ROW: Gauge + Hireability Breakdown + Behavior -------------
     col_left, col_mid, col_right = st.columns([1.2, 1.8, 2])
 
     with col_left:
-        section_label("HIREABILITY INDEX™")
+        section_label("HIREABILITY INDEX")
         hi_fig = hireability_gauge(hi_score)
         st.plotly_chart(hi_fig, use_container_width=True, config={"displayModeBar": False})
 
@@ -144,7 +145,7 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── SECOND ROW: Score Breakdown + Skill Gap ───────────────────────────
+    # -- SECOND ROW: Score Breakdown + Skill Gap ---------------------------
     col_scores, col_skills = st.columns([1.5, 1.5])
 
     with col_scores:
@@ -163,11 +164,11 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── BOTTOM: Additional Metrics ─────────────────────────────────────────
+    # -- BOTTOM: Additional Metrics -----------------------------------------
     col_a, col_b, col_c, col_d = st.columns(4)
     with col_a:
         bm = components.get("behavioral_multiplier", 1.0)
-        st.metric("Behavior Score", f"{bm:.2f}×")
+        st.metric("Behavior Score", f"{bm:.2f}x")
     with col_b:
         avail = components.get("availability", 0)
         st.metric("Availability Score", f"{avail:.0%}")
@@ -180,14 +181,14 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── AI Insights Panel ─────────────────────────────────────────────────
+    # -- AI Insights Panel -------------------------------------------------
     section_label("AI INSIGHTS")
     insights = generate_ai_insights(candidate, components)
     render_ai_insights(insights)
 
     st.markdown("---")
 
-    # ── AI Reasoning ──────────────────────────────────────────────────────
+    # -- AI Reasoning ------------------------------------------------------
     section_label("RANKING EXPLANATION")
     from core.reasoning import generate_reasoning
     reasoning = generate_reasoning(candidate, rank, components)
@@ -198,7 +199,7 @@ def render(state: dict):
         unsafe_allow_html=True,
     )
 
-    # ── Navigation ────────────────────────────────────────────────────────
+    # -- Navigation --------------------------------------------------------
     st.markdown("---")
     nc1, nc2, nc3 = st.columns(3)
     with nc1:
@@ -235,24 +236,27 @@ def _render_skill_gap_summary(skill_gap: dict):
     missing = skill_gap.get("missing_core_skills", [])
     bonus   = skill_gap.get("bonus_skills_matched", [])
 
+    _ck  = icon("check", 13, "#1A8917")
+    _x   = icon("x", 13, "#CC0000")
+    _str = icon("star", 13, "#5E35B1")
     st.markdown(
         f"""
 <div style="margin-top:0.75rem">
-  <div style="font-size:0.75rem;font-weight:600;color:#1A8917;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.375rem">
-    ✓ Core Skills Present ({len(present)})
+  <div style="font-size:0.75rem;font-weight:600;color:#1A8917;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.375rem;display:flex;align-items:center;gap:0.35rem">
+    {_ck} Core Skills Present ({len(present)})
   </div>
   <div style="margin-bottom:0.75rem">
     {"".join(f'<span class="skill-tag skill-tag-present">{s}</span>' for s in present[:6])}
     {"" if len(present) <= 6 else f'<span style="font-size:0.75rem;color:#6E6E73"> +{len(present)-6} more</span>'}
   </div>
-  <div style="font-size:0.75rem;font-weight:600;color:#CC0000;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.375rem">
-    ✗ Missing Core Skills ({len(missing)})
+  <div style="font-size:0.75rem;font-weight:600;color:#CC0000;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.375rem;display:flex;align-items:center;gap:0.35rem">
+    {_x} Missing Core Skills ({len(missing)})
   </div>
   <div style="margin-bottom:0.75rem">
     {"".join(f'<span class="skill-tag skill-tag-missing">{s}</span>' for s in missing[:6])}
   </div>
-  <div style="font-size:0.75rem;font-weight:600;color:#5E35B1;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.375rem">
-    ✦ Bonus Skills ({len(bonus)})
+  <div style="font-size:0.75rem;font-weight:600;color:#5E35B1;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.375rem;display:flex;align-items:center;gap:0.35rem">
+    {_str} Bonus Skills ({len(bonus)})
   </div>
   <div>
     {"".join(f'<span class="skill-tag skill-tag-bonus">{s}</span>' for s in bonus[:5])}

@@ -8,6 +8,7 @@ import streamlit as st
 
 from core.judge_mode import generate_judge_verdict
 from ui.components import render_hireability_index, render_profile_header
+from ui.icons import icon
 from ui.styles import page_header, section_label
 
 
@@ -18,7 +19,7 @@ def render(state: dict):
         "Simulate how a senior recruiter evaluates this candidate · APTIVA AI",
     )
 
-    # ── Candidate Selection ───────────────────────────────────────────────
+    # -- Candidate Selection -----------------------------------------------
     results = state.get("results", [])
     candidate_options = {
         f"#{r['rank']} · {r['candidate']['candidate_id']} · {r['candidate']['profile'].get('current_title','')[:30]}": r["candidate"]["candidate_id"]
@@ -50,24 +51,24 @@ def render(state: dict):
     profile = candidate.get("profile", {})
     signals = candidate.get("redrob_signals", {})
 
-    # ── Profile Header ────────────────────────────────────────────────────
+    # -- Profile Header ----------------------------------------------------
     render_profile_header(candidate, components, rank)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Generate Verdict ──────────────────────────────────────────────────
+    # -- Generate Verdict --------------------------------------------------
     with st.spinner("Generating judge evaluation..."):
         verdict = generate_judge_verdict(candidate, components, rank)
 
-    # ── Verdict Banner ────────────────────────────────────────────────────
+    # -- Verdict Banner ----------------------------------------------------
     label = verdict.get("verdict_label", "Maybe")
     label_styles = {
-        "Strong Hire": ("verdict-strong-hire", "✦ Strong Hire", "#1A8917"),
-        "Hire":        ("verdict-hire",        "✓ Hire",        "#1565C0"),
-        "Maybe":       ("verdict-maybe",       "◈ Maybe",       "#C47000"),
-        "Pass":        ("verdict-pass",        "✗ Pass",        "#CC0000"),
+        "Strong Hire": ("verdict-strong-hire", icon("badge-check", 20, "#1A8917") + " Strong Hire", "#1A8917"),
+        "Hire":        ("verdict-hire",        icon("check-circle", 20, "#1565C0") + " Hire",        "#1565C0"),
+        "Maybe":       ("verdict-maybe",       icon("minus", 20, "#C47000")       + " Maybe",       "#C47000"),
+        "Pass":        ("verdict-pass",        icon("x-circle", 20, "#CC0000")    + " Pass",        "#CC0000"),
     }
-    cls, txt, color = label_styles.get(label, ("verdict-maybe", "◈ Maybe", "#C47000"))
+    cls, txt, color = label_styles.get(label, ("verdict-maybe", icon("minus", 20, "#C47000") + " Maybe", "#C47000"))
     interview_rec = verdict.get("interview_recommendation", "MAYBE")
 
     st.markdown(
@@ -90,19 +91,19 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Two-Column Layout ─────────────────────────────────────────────────
+    # -- Two-Column Layout -------------------------------------------------
     col1, col2 = st.columns(2)
 
     with col1:
         # Why Recommended
         section_label("WHY RECOMMENDED")
-        _verdict_card(verdict.get("why_recommended", "—"), icon="✓", color="#1A8917")
+        _verdict_card(verdict.get("why_recommended", "—"), icon=icon("check-circle", 16, "#1A8917"), color="#1A8917")
 
         st.markdown("<br>", unsafe_allow_html=True)
 
         # Biggest Strength
         section_label("BIGGEST STRENGTH")
-        _verdict_card(verdict.get("biggest_strength", "—"), icon="⭑", color="#0071E3")
+        _verdict_card(verdict.get("biggest_strength", "—"), icon=icon("star", 16, "#0071E3"), color="#0071E3")
 
         st.markdown("<br>", unsafe_allow_html=True)
 
@@ -121,24 +122,24 @@ def render(state: dict):
         # top-ranked candidate who has no candidate above them.
         why_label = "PLACEMENT RATIONALE" if rank == 1 else "WHY NOT RANKED HIGHER"
         section_label(why_label)
-        _verdict_card(verdict.get("why_not_ranked_higher", "—"), icon="↓", color="#C47000")
+        _verdict_card(verdict.get("why_not_ranked_higher", "—"), icon=icon("arrow-right", 16, "#C47000"), color="#C47000")
 
         st.markdown("<br>", unsafe_allow_html=True)
 
         # Biggest Weakness
         section_label("BIGGEST WEAKNESS")
-        _verdict_card(verdict.get("biggest_weakness", "—"), icon="!", color="#CC0000")
+        _verdict_card(verdict.get("biggest_weakness", "—"), icon=icon("alert-triangle", 16, "#CC0000"), color="#CC0000")
 
         st.markdown("<br>", unsafe_allow_html=True)
 
         # Hireability Index in compact form
-        section_label("HIREABILITY INDEX™")
+        section_label("HIREABILITY INDEX")
         hi = components.get("hireability_index", {})
         render_hireability_index(hi, compact=False)
 
     st.markdown("---")
 
-    # ── Final Verdict Box ─────────────────────────────────────────────────
+    # -- Final Verdict Box -------------------------------------------------
     section_label("FINAL VERDICT")
     hi = components.get("hireability_index", {})
     hi_score = hi.get("overall", 0) if hi else 0
@@ -161,7 +162,7 @@ def render(state: dict):
     </div>
     <div style="text-align:center">
       <div style="font-size:1.5rem;font-weight:700;color:#1D1D1F">{hi_score:.0f}</div>
-      <div style="font-size:0.7rem;color:#86868B;text-transform:uppercase">Hireability Index™</div>
+      <div style="font-size:0.7rem;color:#86868B;text-transform:uppercase">Hireability Index</div>
       <div style="font-size:0.65rem;color:#86868B;margin-top:0.1rem">(recruiter trust, 0–100)</div>
     </div>
     <div style="text-align:center">
@@ -184,7 +185,7 @@ def render(state: dict):
     st.markdown("---")
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# -- Helpers -------------------------------------------------------------------
 
 def _get_selected_result(state: dict):
     results = state.get("results", [])

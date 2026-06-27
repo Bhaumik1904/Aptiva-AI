@@ -15,7 +15,6 @@ def render(state: dict):
     page_header(
         "Compare Candidates",
         "Side-by-side evaluation of two candidates",
-        "⚖️",
     )
 
     results = state.get("results", [])
@@ -23,7 +22,7 @@ def render(state: dict):
         st.info("At least 2 ranked candidates are needed for comparison. Run the ranking first.")
         return
 
-    # ── Candidate Selection ───────────────────────────────────────────────
+    # -- Candidate Selection -----------------------------------------------
     compare_list = state.get("compare_list", [])
 
     options = {
@@ -68,13 +67,13 @@ def render(state: dict):
     hi_score_a = hi_a.get("overall", 0) if hi_a else 0
     hi_score_b = hi_b.get("overall", 0) if hi_b else 0
 
-    # ── MASTER SCORE: Final Score is the single source of truth for ranking ──
+    # -- MASTER SCORE: Final Score is the single source of truth for ranking --
     # Hireability Index is an explainability metric only — never a decision key.
     winner_is_a = result_a["score"] >= result_b["score"]
 
     st.markdown("---")
 
-    # ── Radar Chart ───────────────────────────────────────────────────────
+    # -- Radar Chart -------------------------------------------------------
     section_label("MULTI-DIMENSION COMPARISON")
     label_a = f"#{result_a['rank']} · {cand_a['profile'].get('current_title','')[:20]}"
     label_b = f"#{result_b['rank']} · {cand_b['profile'].get('current_title','')[:20]}"
@@ -83,7 +82,7 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Side-by-Side Columns ──────────────────────────────────────────────
+    # -- Side-by-Side Columns ----------------------------------------------
     section_label("HEAD-TO-HEAD")
     col_a, col_vs, col_b = st.columns([5, 1, 5])
 
@@ -101,7 +100,7 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Detailed Comparison Table ─────────────────────────────────────────
+    # -- Detailed Comparison Table -----------------------------------------
     section_label("DETAILED COMPARISON")
 
     dimensions = [
@@ -115,15 +114,15 @@ def render(state: dict):
         ("Trust Score",         comp_a.get("trust_score", 0),  comp_b.get("trust_score", 0),  "%"),
         ("Tech Fit (HI)",       hi_a.get("technical_fit", 0) / 100, hi_b.get("technical_fit", 0) / 100, "%"),
         ("Career Rel. (HI)",    hi_a.get("career_relevance", 0) / 100, hi_b.get("career_relevance", 0) / 100, "%"),
-        ("Behavioral Mult.",    comp_a.get("behavioral_multiplier", 1.0) - 1, comp_b.get("behavioral_multiplier", 1.0) - 1, "×+"),
+        ("Behavioral Mult.",    comp_a.get("behavioral_multiplier", 1.0) - 1, comp_b.get("behavioral_multiplier", 1.0) - 1, "x+"),
         ("Final Score",         result_a["score"],              result_b["score"],              "score"),
-        ("Hireability Index™",  hi_score_a / 100,               hi_score_b / 100,               "hi"),
+        ("Hireability Index",  hi_score_a / 100,               hi_score_b / 100,               "hi"),
     ]
 
     for label, val_a, val_b, fmt in dimensions:
         _render_comparison_row(label, val_a, val_b, fmt)
 
-    # ── Signals Side-by-Side ──────────────────────────────────────────────
+    # -- Signals Side-by-Side ----------------------------------------------
     st.markdown("---")
     section_label("BEHAVIORAL SIGNALS")
     sig_col1, sig_col2 = st.columns(2)
@@ -151,7 +150,7 @@ def render(state: dict):
         with sig_col2:
             st.markdown(f'<div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid #F0F0F0;font-size:0.8125rem"><span style="color:#6E6E73">{row_label}</span><strong>{val_b}</strong></div>', unsafe_allow_html=True)
 
-    # ── Winner Declaration ────────────────────────────────────────────────
+    # -- Winner Declaration ------------------------------------------------
     st.markdown("---")
     winner_result = result_a if winner_is_a else result_b
     winner_cand = cand_a if winner_is_a else cand_b
@@ -163,13 +162,13 @@ def render(state: dict):
 <div style="background:#EBF5EA;border:1.5px solid #1A8917;border-radius:14px;padding:1.5rem;text-align:center">
   <div style="font-size:0.75rem;font-weight:600;color:#1A8917;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Recommended Candidate</div>
   <div style="font-size:1.5rem;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em">{winner_cand.get('candidate_id')} — {winner_title}</div>
-  <div style="font-size:0.9375rem;color:#6E6E73;margin-top:0.25rem">Rank #{winner_result['rank']} · Final Score <strong style="color:#1A8917">{winner_result['score']:.4f}</strong> · Hireability Index™ {winner_hi:.0f}/100</div>
+  <div style="font-size:0.9375rem;color:#6E6E73;margin-top:0.25rem">Rank #{winner_result['rank']} · Final Score <strong style="color:#1A8917">{winner_result['score']:.4f}</strong> · Hireability Index {winner_hi:.0f}/100</div>
 </div>""",
         unsafe_allow_html=True,
     )
 
 
-# ── Helper Renders ────────────────────────────────────────────────────────────
+# -- Helper Renders ------------------------------------------------------------
 
 def _render_candidate_column(candidate, components, result, hi_score, is_winner: bool):
     profile = candidate.get("profile", {})
@@ -190,7 +189,7 @@ def _render_candidate_column(candidate, components, result, hi_score, is_winner:
   <div style="font-size:1.125rem;font-weight:700;color:#1D1D1F;margin-bottom:0.25rem">{profile.get('current_title','')}</div>
   <div style="font-size:0.875rem;color:#6E6E73;margin-bottom:1rem">{profile.get('current_company','')} · {profile.get('location','')}</div>
   <div style="font-size:2.5rem;font-weight:800;color:{'#1A8917' if hi_score>=80 else '#0071E3' if hi_score>=65 else '#C47000' if hi_score>=50 else '#CC0000'};letter-spacing:-0.04em;line-height:1">{hi_score:.0f}</div>
-  <div style="font-size:0.625rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem">Hireability Index™</div>
+  <div style="font-size:0.625rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem">Hireability Index</div>
   <div style="font-size:0.875rem;color:#6E6E73">Score: <strong style="color:#1D1D1F">{result['score']:.4f}</strong></div>
   <div style="font-size:0.875rem;color:#6E6E73">Experience: <strong>{profile.get('years_of_experience',0):.0f} years</strong></div>
   <div style="font-size:0.875rem;color:#6E6E73">Notice: <strong>{signals.get('notice_period_days',0)} days</strong></div>
@@ -208,9 +207,9 @@ def _render_comparison_row(label: str, val_a: float, val_b: float, fmt: str):
     elif fmt == "score":
         str_a = f"{val_a:.4f}"
         str_b = f"{val_b:.4f}"
-    elif fmt == "×+":
-        str_a = f"+{val_a:.2f}×"
-        str_b = f"+{val_b:.2f}×"
+    elif fmt == "x+":
+        str_a = f"+{val_a:.2f}x"
+        str_b = f"+{val_b:.2f}x"
     else:
         str_a = f"{val_a * 100:.0f}%"
         str_b = f"{val_b * 100:.0f}%"

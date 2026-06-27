@@ -24,7 +24,7 @@ import yaml
 # ── Page Config (must be first Streamlit call) ────────────────────────────────
 st.set_page_config(
     page_title="APTIVA AI — Intelligent Candidate Discovery",
-    page_icon="⬡",
+    page_icon="🔷",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -138,10 +138,11 @@ def init_state():
 def render_sidebar(config: dict, loader: DatasetLoader):
     with st.sidebar:
         # Logo / Brand
+        _logo_hex = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>'
         st.markdown(
-            """
+            f"""
 <div style="padding:0.5rem 0 1.5rem">
-  <div style="font-size:1.375rem;font-weight:800;color:#1D1D1F;letter-spacing:-0.03em">⬡ APTIVA AI</div>
+  <div style="font-size:1.375rem;font-weight:800;color:#1D1D1F;letter-spacing:-0.03em;display:flex;align-items:center;gap:0.4rem">{_logo_hex} APTIVA AI</div>
   <div style="font-size:0.75rem;color:#86868B;margin-top:0.125rem;letter-spacing:0.01em">Intelligent Candidate Discovery</div>
 </div>""",
             unsafe_allow_html=True,
@@ -199,13 +200,15 @@ def render_sidebar(config: dict, loader: DatasetLoader):
         candidates_path = loader.get_candidates_path()
         if candidates_path:
             fname = candidates_path.name
+            _ck = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1A8917" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px"><polyline points="20 6 9 17 4 12"/></svg>'
             st.markdown(
-                f'<div style="font-size:0.8125rem;color:#1A8917">✓ {fname}</div>',
+                f'<div style="font-size:0.8125rem;color:#1A8917;display:flex;align-items:center;gap:0.35rem">{_ck} {fname}</div>',
                 unsafe_allow_html=True,
             )
         else:
+            _warn = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#CC0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
             st.markdown(
-                '<div style="font-size:0.8125rem;color:#CC0000">⚠ No dataset found</div>',
+                f'<div style="font-size:0.8125rem;color:#CC0000;display:flex;align-items:center;gap:0.35rem">{_warn} No dataset found</div>',
                 unsafe_allow_html=True,
             )
             st.caption("Place ZIP file in data/ directory")
@@ -216,10 +219,12 @@ def render_sidebar(config: dict, loader: DatasetLoader):
         if candidates_path:
             if st.session_state.get("ranking_running"):
                 # Disabled state shown while analysis is running
+                _ldr = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#86868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>'
                 st.markdown(
-                    '<div style="background:#F5F5F7;border-radius:8px;padding:0.5rem 0.75rem;'
-                    'font-size:0.8125rem;color:#86868B;text-align:center;cursor:not-allowed">'
-                    '⏳ Running Analysis…</div>',
+                    f'<div style="background:#F5F5F7;border-radius:6px;padding:0.5rem 0.75rem;'
+                    f'font-size:0.8125rem;color:#86868B;text-align:center;cursor:not-allowed;'
+                    f'display:flex;align-items:center;justify-content:center;gap:0.4rem">'
+                    f'{_ldr} Running Analysis…</div>',
                     unsafe_allow_html=True,
                 )
             else:
@@ -415,15 +420,18 @@ def auto_run_ranking(loader: DatasetLoader):
             if complete or i < stage_idx:
                 icon_cls = "aptiva-step-done"
                 lbl_cls  = "aptiva-step-label-done"
-                icon_ch  = "✓"
+                # SVG check mark
+                icon_ch  = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
             elif i == stage_idx:
                 icon_cls = "aptiva-step-active"
                 lbl_cls  = "aptiva-step-label-active"
-                icon_ch  = "▶"
+                # SVG right-pointing triangle (play)
+                icon_ch  = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
             else:
                 icon_cls = "aptiva-step-idle"
                 lbl_cls  = "aptiva-step-label-idle"
-                icon_ch  = "○"
+                # Small circle (pending)
+                icon_ch  = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>'
             steps_html += (
                 f'<div class="aptiva-step">'
                 f'<span class="aptiva-step-icon {icon_cls}">{icon_ch}</span>'
@@ -441,9 +449,10 @@ def auto_run_ranking(loader: DatasetLoader):
         bar_pct = min(100, int(progress * 100))
 
         if complete:
+            _ck_green = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1A8917" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
             eta_block = (
-                f'<div class="aptiva-eta-label" style="color:#1A8917;letter-spacing:0.06em">'
-                f'✓&nbsp; Initialization Complete</div>'
+                f'<div class="aptiva-eta-label" style="color:#1A8917;letter-spacing:0.06em;display:flex;align-items:center;gap:0.3rem">'
+                f'{_ck_green} Initialization Complete</div>'
                 f'<div class="aptiva-eta-value" style="color:#1A8917;font-size:1.0625rem;font-weight:600">'
                 f'Launching APTIVA AI…</div>'
             )
@@ -470,7 +479,7 @@ def auto_run_ranking(loader: DatasetLoader):
         html = f"""{_CSS}
 {scroll_lock_js}
 <div class="aptiva-loader" id="aptiva-overlay">
-  <div class="aptiva-logo">&#x2B21; APTIVA AI</div>
+  <div class="aptiva-logo"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-4px;margin-right:0.3rem"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg> APTIVA AI</div>
   <div class="aptiva-sub">Intelligent Candidate Ranking &middot; Redrob AI Hackathon</div>
 
   <div class="aptiva-bar-track">
@@ -570,7 +579,7 @@ document.body.style.overflow='hidden';
     _render(4, 0.95, "~1 second");   time.sleep(0.12)
     _render(4, 0.98, "<1 second");   time.sleep(0.12)
 
-    # Completion state — shows ✓ Initialization Complete / Launching APTIVA AI…
+    # Completion state -- shows check mark + Initialization Complete / Launching APTIVA AI
     _render(4, 1.00, "", complete=True)
     time.sleep(0.75)   # 700-800 ms dwell before clearing (per spec)
 
@@ -583,12 +592,12 @@ var main=document.querySelector('[data-testid="stAppViewContainer"]');
 if(main) main.style.overflow='';
 </script>
 <div class="aptiva-loader aptiva-exiting" id="aptiva-overlay">
-  <div class="aptiva-logo">&#x2B21; APTIVA AI</div>
+  <div class="aptiva-logo"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-4px;margin-right:0.3rem"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg> APTIVA AI</div>
   <div class="aptiva-sub">Intelligent Candidate Ranking &middot; Redrob AI Hackathon</div>
   <div class="aptiva-bar-track"><div class="aptiva-bar-fill" style="width:100%"></div></div>
   <div style="text-align:center;margin-top:2rem">
-    <div style="font-size:0.6875rem;color:#1A8917;text-transform:uppercase;letter-spacing:0.06em">
-      &#x2713;&nbsp; Initialization Complete</div>
+    <div style="font-size:0.6875rem;color:#1A8917;text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;justify-content:center;gap:0.3rem">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1A8917" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Initialization Complete</div>
     <div style="font-size:1.0625rem;font-weight:600;color:#1A8917;margin-top:0.25rem">
       Launching APTIVA AI&hellip;</div>
   </div>

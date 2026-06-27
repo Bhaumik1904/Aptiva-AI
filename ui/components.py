@@ -4,9 +4,10 @@ Pre-built blocks for Hireability Index, score bars, skill tags, etc.
 """
 
 import streamlit as st
+from ui.icons import icon, icon_text
 
 
-# ── Recommendation Badge ──────────────────────────────────────────────────────
+# -- Recommendation Badge ------------------------------------------------------
 
 def recommendation_badge(label: str) -> str:
     """Return HTML badge for hire recommendation."""
@@ -17,10 +18,10 @@ def recommendation_badge(label: str) -> str:
         "NO":         "badge-no",
     }
     text_map = {
-        "STRONG_YES": "✦ Strong Hire",
-        "YES":        "✓ Hire",
-        "MAYBE":      "◈ Maybe",
-        "NO":         "✗ Pass",
+        "STRONG_YES": icon_text("badge-check", "Strong Hire"),
+        "YES":        icon_text("check-circle", "Hire"),
+        "MAYBE":      icon_text("minus", "Maybe"),
+        "NO":         icon_text("x-circle", "Pass"),
     }
     cls = class_map.get(label, "badge-neutral")
     txt = text_map.get(label, label)
@@ -31,10 +32,10 @@ def render_recommendation_badge(label: str):
     st.markdown(recommendation_badge(label), unsafe_allow_html=True)
 
 
-# ── Hireability Index™ Display ────────────────────────────────────────────────
+# -- Hireability Index Display ------------------------------------------------
 
 def render_hireability_index(hi: dict, compact: bool = False):
-    """Render the full Hireability Index™ breakdown."""
+    """Render the full Hireability Index breakdown."""
     if not hi:
         return
 
@@ -57,7 +58,7 @@ def render_hireability_index(hi: dict, compact: bool = False):
   <span style="font-size:1.75rem;font-weight:800;color:{color};letter-spacing:-0.03em">{overall:.0f}</span>
   <div>
     <div style="font-size:0.6875rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em">Hireability</div>
-    <div style="font-size:0.6875rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em">Index™</div>
+    <div style="font-size:0.6875rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em">Index</div>
   </div>
 </div>""",
             unsafe_allow_html=True,
@@ -68,7 +69,7 @@ def render_hireability_index(hi: dict, compact: bool = False):
     st.markdown(
         f"""
 <div style="text-align:center;padding:1.5rem;background:#F5F5F7;border-radius:14px;margin-bottom:1rem">
-  <div style="font-size:0.6875rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Hireability Index™</div>
+  <div style="font-size:0.6875rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Hireability Index</div>
   <div style="font-size:4rem;font-weight:800;letter-spacing:-0.04em;color:{color};line-height:1">{overall:.0f}</div>
   <div style="font-size:0.875rem;color:#6E6E73;margin-top:0.25rem">out of 100</div>
 </div>""",
@@ -107,7 +108,7 @@ def _render_score_bar(label: str, score: float, weight_pct: int = None):
     )
 
 
-# ── Score Breakdown Bars ──────────────────────────────────────────────────────
+# -- Score Breakdown Bars ------------------------------------------------------
 
 def render_score_breakdown(components: dict):
     """Render the 7-component score breakdown."""
@@ -131,7 +132,7 @@ def render_score_breakdown(components: dict):
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem">
     <span style="font-size:0.875rem;color:#1D1D1F;font-weight:500">{label}</span>
     <div style="display:flex;align-items:center;gap:0.75rem">
-      <span style="font-size:0.75rem;color:#86868B">{weight_str} weight → +{contrib:.1f}pts</span>
+      <span style="font-size:0.75rem;color:#86868B">{weight_str} weight -> +{contrib:.1f}pts</span>
       <span style="font-size:0.9rem;font-weight:700;color:{fill_color}">{score_100:.0f}</span>
     </div>
   </div>
@@ -145,11 +146,13 @@ def render_score_breakdown(components: dict):
     # Behavioral multiplier
     bm = components.get("behavioral_multiplier", 1.0)
     bm_color = "#1A8917" if bm >= 1.0 else ("#C47000" if bm >= 0.75 else "#CC0000")
+    _zap = icon("zap", size=14)
+    _target = icon("target", size=14)
     st.markdown(
         f"""
 <div style="background:#F5F5F7;border-radius:8px;padding:0.75rem 1rem;margin-top:0.5rem;display:flex;justify-content:space-between;align-items:center">
-  <span style="font-size:0.875rem;font-weight:500;color:#1D1D1F">⚡ Behavioral Multiplier</span>
-  <span style="font-size:1.125rem;font-weight:700;color:{bm_color}">×{bm:.2f}</span>
+  <span style="font-size:0.875rem;font-weight:500;color:#1D1D1F;display:inline-flex;align-items:center;gap:0.375rem">{_zap} Behavioral Multiplier</span>
+  <span style="font-size:1.125rem;font-weight:700;color:{bm_color}">x{bm:.2f}</span>
 </div>
 <div style="background:#F5F5F7;border-radius:8px;padding:0.75rem 1rem;margin-top:0.375rem;display:flex;justify-content:space-between;align-items:center">
   <span style="font-size:0.875rem;font-weight:600;color:#1D1D1F">Final Score</span>
@@ -159,7 +162,7 @@ def render_score_breakdown(components: dict):
     )
 
 
-# ── Profile Header Card ───────────────────────────────────────────────────────
+# -- Profile Header Card -------------------------------------------------------
 
 def render_profile_header(candidate: dict, components: dict, rank: int = None):
     """Render a clean profile summary card."""
@@ -190,21 +193,21 @@ def render_profile_header(candidate: dict, components: dict, rank: int = None):
     <div style="font-size:1.375rem;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em;margin-bottom:0.125rem">{title}</div>
     <div style="font-size:0.9375rem;color:#6E6E73;margin-bottom:0.625rem">{company}{"&nbsp;&nbsp;·&nbsp;&nbsp;" + location if location else ""}</div>
     <div style="display:flex;gap:1.25rem;font-size:0.875rem;color:#86868B">
-      <span>🎯 {yoe} yrs exp</span>
-      <span>📅 {notice}d notice</span>
+      <span style="display:inline-flex;align-items:center;gap:0.3rem">{icon("briefcase",14)} {yoe} yrs exp</span>
+      <span style="display:inline-flex;align-items:center;gap:0.3rem">{icon("calendar",14)} {notice}d notice</span>
       <span style="font-size:0.75rem;color:#86868B;font-family:monospace">{cid}</span>
     </div>
   </div>
   <div style="text-align:center;min-width:80px">
     <div style="font-size:2.5rem;font-weight:800;color:{'#1A8917' if hi_score>=80 else '#0071E3' if hi_score>=65 else '#C47000' if hi_score>=50 else '#CC0000'};letter-spacing:-0.04em;line-height:1">{hi_score:.0f}</div>
-    <div style="font-size:0.625rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em">Hireability<br>Index™</div>
+    <div style="font-size:0.625rem;font-weight:600;color:#86868B;text-transform:uppercase;letter-spacing:0.08em">Hireability<br>Index</div>
   </div>
 </div>""",
         unsafe_allow_html=True,
     )
 
 
-# ── AI Insights Panel ─────────────────────────────────────────────────────────
+# -- AI Insights Panel ---------------------------------------------------------
 
 def render_ai_insights(insights: dict):
     """Render the AI Insights panel with strengths, concerns, etc."""
@@ -217,7 +220,7 @@ def render_ai_insights(insights: dict):
         st.markdown('<div class="section-header">Top Strengths</div>', unsafe_allow_html=True)
         for item in insights.get("strengths", []):
             st.markdown(
-                f'<div class="insight-item"><span style="color:#1A8917">✓</span><span>{item}</span></div>',
+                f'<div class="insight-item"><span style="color:#1A8917">{icon("check",13)}</span><span>{item}</span></div>',
                 unsafe_allow_html=True,
             )
         if not insights.get("strengths"):
@@ -240,7 +243,7 @@ def render_ai_insights(insights: dict):
         st.markdown('<div class="section-header">Behavior Insights</div>', unsafe_allow_html=True)
         for item in insights.get("behavior_insights", []):
             st.markdown(
-                f'<div class="insight-item"><span style="color:#0071E3">◈</span><span>{item}</span></div>',
+                f'<div class="insight-item"><span style="color:#0071E3">{icon("activity",13)}</span><span>{item}</span></div>',
                 unsafe_allow_html=True,
             )
 
@@ -264,15 +267,15 @@ def render_ai_insights(insights: dict):
     )
 
 
-# ── Honeypot Warning ──────────────────────────────────────────────────────────
+# -- Honeypot Warning ----------------------------------------------------------
 
 def render_honeypot_warning(flags: list):
     if not flags:
         return
-    st.warning(f"⚠️ **Profile integrity flags detected** ({len(flags)} flags): " + " · ".join(flags[:3]))
+    st.warning(f"Profile integrity flags detected ({len(flags)} flags): " + " · ".join(flags[:3]))
 
 
-# ── Empty State ───────────────────────────────────────────────────────────────
+# -- Empty State ---------------------------------------------------------------
 
 def render_empty_state(message: str = "No data available", hint: str = ""):
     st.markdown(

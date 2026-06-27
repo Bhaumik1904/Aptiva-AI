@@ -22,7 +22,6 @@ def render(state: dict):
     page_header(
         "Analytics",
         "Dataset-wide insights across all analyzed candidates",
-        "📊",
     )
 
     results = state.get("results", [])
@@ -34,7 +33,7 @@ def render(state: dict):
 
     total = state.get("total_candidates", len(candidates))
 
-    # ── Summary Stats ──────────────────────────────────────────────────────
+    # -- Summary Stats ------------------------------------------------------
     section_label("DATASET OVERVIEW")
     s1, s2, s3, s4, s5, s6 = st.columns(6)
 
@@ -61,11 +60,11 @@ def render(state: dict):
         st.metric("Avg Final Score", f"{avg_fs:.4f}", delta="Ranking metric")
     with s6:
         avg_hi = sum(hi_scores) / max(1, len(hi_scores))
-        st.metric("Avg Hireability™", f"{avg_hi:.0f}/100", delta="Secondary signal")
+        st.metric("Avg Hireability", f"{avg_hi:.0f}/100", delta="Secondary signal")
 
     st.markdown("---")
 
-    # ── Row 1: Skills + Location ────────────────────────────────────────────
+    # -- Row 1: Skills + Location --------------------------------------------
     col1, col2 = st.columns(2)
 
     with col1:
@@ -80,7 +79,7 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Row 2: Final Score Distribution (primary) + Experience ────────────
+    # -- Row 2: Final Score Distribution (primary) + Experience ------------
     col3, col4 = st.columns(2)
 
     with col3:
@@ -95,14 +94,14 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Row 2b: HI Distribution (secondary) ────────────────────────────
-    section_label("HIREABILITY INDEX™ DISTRIBUTION (SECONDARY METRIC)")
+    # -- Row 2b: HI Distribution (secondary) ----------------------------
+    section_label("HIREABILITY INDEX DISTRIBUTION (SECONDARY METRIC)")
     hi_fig = hireability_distribution(results)
     st.plotly_chart(hi_fig, use_container_width=True, config={"displayModeBar": False})
 
     st.markdown("---")
 
-    # ── Row 3: Behavior & Recommendations ─────────────────────────────────
+    # -- Row 3: Behavior & Recommendations ---------------------------------
     section_label("RECOMMENDATION BREAKDOWN")
     rec_counts = {"STRONG_YES": 0, "YES": 0, "MAYBE": 0, "NO": 0}
     for r in results:
@@ -121,7 +120,7 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Behavior Distribution ──────────────────────────────────────────────
+    # -- Behavior Distribution ----------------------------------------------
     section_label("BEHAVIOR SIGNAL DISTRIBUTION (TOP CANDIDATES)")
     bc1, bc2, bc3 = st.columns(3)
 
@@ -181,7 +180,7 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Recruiter Readiness Metrics ────────────────────────────────────────
+    # -- Recruiter Readiness Metrics ----------------------------------------
     section_label("RECRUITER READINESS METRICS")
     rr1, rr2, rr3, rr4, rr5 = st.columns(5)
 
@@ -199,7 +198,7 @@ def render(state: dict):
     with rr2:
         st.metric("Avg Notice Period", f"{avg_notice:.0f} days")
     with rr3:
-        st.metric("High Response Rate", f"{high_response}/{len(candidates)}", delta="≥50% response")
+        st.metric("High Response Rate", f"{high_response}/{len(candidates)}", delta=">=50% response")
     with rr4:
         st.metric("LinkedIn Connected", f"{linkedin_connected}/{len(candidates)}")
     with rr5:
@@ -207,7 +206,7 @@ def render(state: dict):
 
     st.markdown("---")
 
-    # ── Top Industries ─────────────────────────────────────────────────────
+    # -- Top Industries -----------------------------------------------------
     section_label("TOP INDUSTRIES")
     from collections import Counter
     industry_counts: Counter = Counter()

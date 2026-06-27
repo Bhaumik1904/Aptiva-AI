@@ -15,6 +15,7 @@ from ui.components import (
     render_profile_header,
     render_score_breakdown,
 )
+from ui.icons import icon
 from ui.styles import page_header, section_label
 
 
@@ -22,7 +23,7 @@ def render(state: dict):
     """Render the full Candidate Profile page."""
     page_header("Candidate Profile", "Full profile deep dive")
 
-    # ── Candidate Selector ────────────────────────────────────────────────
+    # -- Candidate Selector ------------------------------------------------
     results = state.get("results", [])
     if not results:
         st.info("No candidates loaded. Run the ranker first.")
@@ -71,16 +72,16 @@ def render(state: dict):
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Tabs ──────────────────────────────────────────────────────────────
+    # -- Tabs --------------------------------------------------------------
     tab_overview, tab_career, tab_skills, tab_signals, tab_reasoning = st.tabs([
         "Overview", "Career History", "Skills & Gap", "Behavioral Signals", "AI Reasoning"
     ])
 
-    # ── TAB 1: Overview ───────────────────────────────────────────────────
+    # -- TAB 1: Overview ---------------------------------------------------
     with tab_overview:
         col1, col2 = st.columns([1, 1.5])
         with col1:
-            section_label("HIREABILITY INDEX™")
+            section_label("HIREABILITY INDEX")
             hi = components.get("hireability_index", {})
             render_hireability_index(hi)
 
@@ -106,11 +107,11 @@ def render(state: dict):
                 st.markdown(_stat("Location", profile.get("location", "—")), unsafe_allow_html=True)
             with qc2:
                 st.markdown(_stat("Notice Period", f"{signals.get('notice_period_days', '—')} days"), unsafe_allow_html=True)
-                st.markdown(_stat("Open to Work", "Yes ✓" if signals.get("open_to_work_flag") else "No"), unsafe_allow_html=True)
+                st.markdown(_stat("Open to Work", "Yes" if signals.get("open_to_work_flag") else "No"), unsafe_allow_html=True)
                 st.markdown(_stat("Work Mode Preference", signals.get("preferred_work_mode", "—")), unsafe_allow_html=True)
                 st.markdown(_stat("Willing to Relocate", "Yes" if signals.get("willing_to_relocate") else "No"), unsafe_allow_html=True)
 
-    # ── TAB 2: Career History ─────────────────────────────────────────────
+    # -- TAB 2: Career History ---------------------------------------------
     with tab_career:
         if not career:
             st.info("No career history available.")
@@ -119,7 +120,7 @@ def render(state: dict):
             for i, job in enumerate(sorted(career, key=lambda j: j.get("start_date", ""), reverse=True)):
                 _render_job_card(job, i)
 
-    # ── TAB 3: Skills & Gap ───────────────────────────────────────────────
+    # -- TAB 3: Skills & Gap -----------------------------------------------
     with tab_skills:
         skill_gap = analyze_skill_gap(candidate)
 
@@ -166,7 +167,7 @@ def render(state: dict):
                     unsafe_allow_html=True,
                 )
 
-    # ── TAB 4: Behavioral Signals ──────────────────────────────────────────
+    # -- TAB 4: Behavioral Signals ------------------------------------------
     with tab_signals:
         bc1, bc2 = st.columns([1.5, 1.5])
         with bc1:
@@ -197,7 +198,7 @@ def render(state: dict):
                 unsafe_allow_html=True,
             )
 
-    # ── TAB 5: AI Reasoning ────────────────────────────────────────────────
+    # -- TAB 5: AI Reasoning ------------------------------------------------
     with tab_reasoning:
         # AI Insights
         insights = generate_ai_insights(candidate, components)
@@ -220,7 +221,7 @@ def render(state: dict):
             st.rerun()
 
 
-# ── Helper Functions ──────────────────────────────────────────────────────────
+# -- Helper Functions ----------------------------------------------------------
 
 def _get_selected_result(state: dict):
     results = state.get("results", [])
@@ -246,7 +247,11 @@ def _render_job_card(job: dict, index: int):
     desc = job.get("description", "")
     with st.expander(f"**{job.get('title','')}** at {job.get('company','')} · {duration_str}", expanded=(index == 0)):
         st.markdown(
-            f'<div style="display:flex;gap:1.5rem;font-size:0.8125rem;color:#86868B;margin-bottom:0.75rem"><span>📅 {job.get("start_date","?")[:7]} → {job.get("end_date","Present")[:7] if job.get("end_date") else "Present"}</span><span>🏢 {job.get("company_size","?")}</span><span>🏭 {job.get("industry","?")}</span></div><div style="font-size:0.9rem;color:#1D1D1F;line-height:1.65">{desc}</div>',
+            f'<div style="display:flex;gap:1.5rem;font-size:0.8125rem;color:#86868B;margin-bottom:0.75rem">'
+            f'<span style="display:inline-flex;align-items:center;gap:0.3rem">{icon("calendar",13)} {job.get("start_date","?")[:7]} → {job.get("end_date","Present")[:7] if job.get("end_date") else "Present"}</span>'
+            f'<span style="display:inline-flex;align-items:center;gap:0.3rem">{icon("building",13)} {job.get("company_size","?")}</span>'
+            f'<span style="display:inline-flex;align-items:center;gap:0.3rem">{icon("factory",13)} {job.get("industry","?")}</span>'
+            f'</div><div style="font-size:0.9rem;color:#1D1D1F;line-height:1.65">{desc}</div>',
             unsafe_allow_html=True,
         )
 
@@ -260,20 +265,22 @@ def _render_skill_row(skill_row: dict):
     mq = skill_row.get("match_quality", 0)
 
     if status == "present":
-        icon = "✓"
+        _icon_svg = icon("check", 13, "#1A8917")
         icon_color = "#1A8917"
         bg = "#F5FFF5"
         prof_str = f"{prof.capitalize()} · {dur}mo"
         if assessment is not None:
             prof_str += f" · Assessed: {assessment:.0f}"
     else:
-        icon = "✗"
+        _icon_svg = icon("x", 13, "#CC0000")
         icon_color = "#CC0000"
         bg = "#FFF5F5"
         prof_str = "Not found"
 
     st.markdown(
-        f'<div style="background:{bg};border-radius:6px;padding:0.5rem 0.75rem;margin:0.25rem 0;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:0.5rem"><span style="color:{icon_color};font-weight:700">{icon}</span><span style="font-size:0.875rem;font-weight:500;color:#1D1D1F">{name}</span></div><span style="font-size:0.75rem;color:#6E6E73">{prof_str}</span></div>',
+        f'<div style="background:{bg};border-radius:6px;padding:0.5rem 0.75rem;margin:0.25rem 0;display:flex;justify-content:space-between;align-items:center">'
+        f'<div style="display:flex;align-items:center;gap:0.5rem">{_icon_svg}<span style="font-size:0.875rem;font-weight:500;color:#1D1D1F">{name}</span></div>'
+        f'<span style="font-size:0.75rem;color:#6E6E73">{prof_str}</span></div>',
         unsafe_allow_html=True,
     )
 
@@ -282,7 +289,7 @@ def _render_signals_table(signals: dict):
     """Render key behavioral signals as a clean table."""
     items = [
         ("Profile Completeness", f"{signals.get('profile_completeness_score', 0)}/100"),
-        ("Open to Work", "Yes ✓" if signals.get("open_to_work_flag") else "No"),
+        ("Open to Work", "Yes" if signals.get("open_to_work_flag") else "No"),
         ("Last Active", signals.get("last_active_date", "—")),
         ("Notice Period", f"{signals.get('notice_period_days', 0)} days"),
         ("Recruiter Response Rate", f"{signals.get('recruiter_response_rate', 0):.0%}"),
@@ -292,9 +299,9 @@ def _render_signals_table(signals: dict):
         ("Saved by Recruiters (30d)", str(signals.get("saved_by_recruiters_30d", 0))),
         ("Profile Views (30d)", str(signals.get("profile_views_received_30d", 0))),
         ("Applications (30d)", str(signals.get("applications_submitted_30d", 0))),
-        ("Email Verified", "Yes ✓" if signals.get("verified_email") else "No"),
-        ("Phone Verified", "Yes ✓" if signals.get("verified_phone") else "No"),
-        ("LinkedIn", "Connected ✓" if signals.get("linkedin_connected") else "Not connected"),
+        ("Email Verified", "Yes" if signals.get("verified_email") else "No"),
+        ("Phone Verified", "Yes" if signals.get("verified_phone") else "No"),
+        ("LinkedIn", "Connected" if signals.get("linkedin_connected") else "Not connected"),
         ("Connection Count", str(signals.get("connection_count", 0))),
         ("Willing to Relocate", "Yes" if signals.get("willing_to_relocate") else "No"),
         ("Work Mode Preference", signals.get("preferred_work_mode", "—")),
