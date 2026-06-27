@@ -21,7 +21,7 @@ def detect_honeypot(candidate: Dict) -> Tuple[bool, List[str]]:
     education = candidate.get("education", [])
     signals = candidate.get("redrob_signals", {})
 
-    # ── Career Temporal Checks ─────────────────────────────────────────────
+    # -- Career Temporal Checks ---------------------------------------------
     for job in career:
         try:
             start_str = job.get("start_date", "")
@@ -49,7 +49,7 @@ def detect_honeypot(candidate: Dict) -> Tuple[bool, List[str]]:
         except (ValueError, TypeError):
             pass  # Unparseable dates are suspicious but not definitive
 
-    # ── Education Temporal Checks ──────────────────────────────────────────
+    # -- Education Temporal Checks ------------------------------------------
     for edu in education:
         try:
             start_year = int(edu.get("start_year", 0))
@@ -63,7 +63,7 @@ def detect_honeypot(candidate: Dict) -> Tuple[bool, List[str]]:
         except (ValueError, TypeError):
             pass
 
-    # ── Skill Impossibilities ──────────────────────────────────────────────
+    # -- Skill Impossibilities ----------------------------------------------
     expert_zero_count = 0
     for skill in skills:
         proficiency = skill.get("proficiency", "")
@@ -82,7 +82,7 @@ def detect_honeypot(candidate: Dict) -> Tuple[bool, List[str]]:
     if expert_count > 8 and yoe < 4:
         flags.append(f"too_many_experts_for_experience:({expert_count} experts, {yoe}yr)")
 
-    # ── Assessment vs Self-Reported Contradiction ──────────────────────────
+    # -- Assessment vs Self-Reported Contradiction --------------------------
     assessments = signals.get("skill_assessment_scores", {})
     for skill in skills:
         name = skill.get("name", "")
@@ -90,11 +90,11 @@ def detect_honeypot(candidate: Dict) -> Tuple[bool, List[str]]:
             if assessments[name] < 25:
                 flags.append(f"expert_failed_assessment:{name}({assessments[name]})")
 
-    # ── Profile Completeness Ghost ─────────────────────────────────────────
+    # -- Profile Completeness Ghost -----------------------------------------
     completeness = signals.get("profile_completeness_score", 50)
     if completeness < 20:
         flags.append(f"ghost_profile:completeness={completeness}")
 
-    # ── Final Decision: 2+ flags = honeypot ───────────────────────────────
+    # -- Final Decision: 2+ flags = honeypot -------------------------------
     is_honeypot = len(flags) >= 2
     return is_honeypot, flags

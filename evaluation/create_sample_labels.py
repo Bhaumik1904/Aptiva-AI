@@ -34,7 +34,7 @@ SAMPLE_DATA  = PROJECT_ROOT / "data" / "sample_candidates.json"
 OUTPUT_CSV   = SCRIPT_DIR / "sample_ground_truth.csv"
 
 
-# ── Title-based relevance heuristic (independent of scorer) ─────────────────
+# -- Title-based relevance heuristic (independent of scorer) -----------------
 
 TIER_3_KEYWORDS = [
     "senior ai engineer", "senior ml engineer", "senior machine learning engineer",
@@ -151,7 +151,7 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"Generated {len(rows)} labels → {OUTPUT_CSV}")
+    print(f"Generated {len(rows)} labels -> {OUTPUT_CSV}")
     print()
 
     # Summary

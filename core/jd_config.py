@@ -5,7 +5,7 @@ This is the single source of truth for all scoring decisions.
 """
 
 JD_CONFIG = {
-    # ── Title Scores (0.0 – 1.0) ─────────────────────────────────────────────
+    # -- Title Scores (0.0 – 1.0) ---------------------------------------------
     "title_scores": {
         # Exact matches
         "senior ai engineer": 1.0,
@@ -63,7 +63,7 @@ JD_CONFIG = {
         "hardware engineer":    0.05,  # Silicon; minor edge inference relevance
     },
 
-    # ── Core Required Skills (from must-have section of JD) ──────────────────
+    # -- Core Required Skills (from must-have section of JD) ------------------
     "core_skills": [
         "embeddings", "sentence transformers", "sentence-transformers",
         "vector database", "vector db", "retrieval", "information retrieval",
@@ -75,7 +75,7 @@ JD_CONFIG = {
         "learning to rank", "ltr", "semantic search",
     ],
 
-    # ── Bonus / Nice-to-Have Skills ──────────────────────────────────────────
+    # -- Bonus / Nice-to-Have Skills ------------------------------------------
     "bonus_skills": [
         "lora", "qlora", "peft", "fine-tuning", "fine-tune", "fine tuning",
         "xgboost", "lightgbm", "langchain", "llm", "large language model",
@@ -89,20 +89,20 @@ JD_CONFIG = {
         "colbert", "splade", "ann", "hnsw",
     ],
 
-    # ── Experience Targets ───────────────────────────────────────────────────
+    # -- Experience Targets ---------------------------------------------------
     "experience_target_min": 5,
     "experience_target_max": 9,
     "experience_sweet_spot_min": 6,
     "experience_sweet_spot_max": 8,
 
-    # ── Preferred Locations ──────────────────────────────────────────────────
+    # -- Preferred Locations --------------------------------------------------
     "preferred_locations": [
         "pune", "noida", "delhi", "new delhi", "gurugram", "gurgaon",
         "hyderabad", "mumbai", "bangalore", "bengaluru", "india",
         "ncr", "delhi ncr",
     ],
 
-    # ── Consulting Firms (JD disqualifier) ───────────────────────────────────
+    # -- Consulting Firms (JD disqualifier) -----------------------------------
     "consulting_firms": [
         "tcs", "tata consultancy",
         "infosys", "infy",
@@ -118,7 +118,7 @@ JD_CONFIG = {
         "mindtree",
     ],
 
-    # ── Preferred Industries ─────────────────────────────────────────────────
+    # -- Preferred Industries -------------------------------------------------
     "preferred_industries": [
         "ai/ml", "artificial intelligence", "machine learning",
         "fintech", "financial technology",
@@ -132,7 +132,7 @@ JD_CONFIG = {
         "edtech", "healthtech", "proptech",
     ],
 
-    # ── JD Career Keywords (for TF-IDF semantic matching) ───────────────────
+    # -- JD Career Keywords (for TF-IDF semantic matching) -------------------
     "jd_career_keywords": [
         "embedding", "embeddings", "vector", "retrieval", "ranking",
         "recommendation", "recommender", "nlp", "language model", "llm",
@@ -148,7 +148,7 @@ JD_CONFIG = {
         "model serving", "model inference", "real-time",
     ],
 
-    # ── Risk Keywords (for risk scoring) ─────────────────────────────────────
+    # -- Risk Keywords (for risk scoring) -------------------------------------
     "risk_keywords": [
         "gap", "no production", "only research", "academic",
         "short tenure", "job hopping",

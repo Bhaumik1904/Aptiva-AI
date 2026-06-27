@@ -10,7 +10,7 @@ Usage:
     python rank.py --candidates ./data/candidates.jsonl --out ./submission.csv --enrich-reasoning
 
 Constraints:
-    CPU only | ≤5 min | ≤16 GB RAM | no network during ranking
+    CPU only | <=5 min | <=16 GB RAM | no network during ranking
 
 Architecture:
     1. Auto-detect dataset (ZIP extraction if needed)
@@ -32,14 +32,14 @@ from pathlib import Path
 
 import yaml
 
-# ── Import core modules ───────────────────────────────────────────────────────
+# -- Import core modules -------------------------------------------------------
 from core.dataset_loader import DatasetLoader
 from core.reasoning import generate_reasoning
 from core.scorer import compute_final_score
 from core.tfidf_engine import build_tfidf_index
 
 
-# ── Load configuration ────────────────────────────────────────────────────────
+# -- Load configuration --------------------------------------------------------
 def load_config(config_path: str = "config.yaml") -> dict:
     try:
         with open(config_path, encoding="utf-8") as f:
@@ -48,7 +48,7 @@ def load_config(config_path: str = "config.yaml") -> dict:
         return {}
 
 
-# ── Main ranking pipeline ─────────────────────────────────────────────────────
+# -- Main ranking pipeline -----------------------------------------------------
 def rank_candidates(
     candidates_path: str,
     output_path: str,
@@ -65,10 +65,10 @@ def rank_candidates(
     config = config or {}
     t_start = time.time()
 
-    # ── Step 1: Load Candidates ───────────────────────────────────────────
-    print("━" * 60)
+    # -- Step 1: Load Candidates -------------------------------------------
+    print("=" * 60)
     print("  APTIVA AI — Redrob Ranking Engine")
-    print("━" * 60)
+    print("=" * 60)
 
     loader = DatasetLoader(data_dir="./data")
 
@@ -79,7 +79,7 @@ def rank_candidates(
         # Auto-setup (ZIP extraction if needed)
         status = loader.auto_setup()
         if not status["dataset_ready"]:
-            print("❌ No dataset found. Please place ZIP in data/ directory.")
+            print("[ERROR] No dataset found. Please place ZIP in data/ directory.")
             sys.exit(1)
         target_path = loader.get_candidates_path()
 
@@ -87,13 +87,13 @@ def rank_candidates(
     t0 = time.time()
 
     candidates = loader.load_all_candidates(target_path)
-    print(f" ✓ {len(candidates):,} candidates loaded ({time.time() - t0:.1f}s)")
+    print(f" [OK] {len(candidates):,} candidates loaded ({time.time() - t0:.1f}s)")
 
     if not candidates:
-        print("❌ No candidates loaded. Check the file path and format.")
+        print("[ERROR] No candidates loaded. Check the file path and format.")
         sys.exit(1)
 
-    # ── Step 2: Build TF-IDF Index ────────────────────────────────────────
+    # -- Step 2: Build TF-IDF Index ----------------------------------------
     print(f"  Building TF-IDF index...", end="", flush=True)
     t0 = time.time()
 
@@ -104,9 +104,9 @@ def rank_candidates(
         ngram_range=tuple(ranking_cfg.get("tfidf_ngram_range", [1, 2])),
         min_df=ranking_cfg.get("tfidf_min_df", 2),
     )
-    print(f" ✓ done ({time.time() - t0:.1f}s)")
+    print(f" [OK] done ({time.time() - t0:.1f}s)")
 
-    # ── Step 3: Score All Candidates ──────────────────────────────────────
+    # -- Step 3: Score All Candidates --------------------------------------
     print(f"  Scoring {len(candidates):,} candidates...", end="", flush=True)
     t0 = time.time()
 
@@ -116,18 +116,18 @@ def rank_candidates(
         final_score, components = compute_final_score(candidate, tfidf_sim)
         scored.append((final_score, candidate, components))
 
-    print(f" ✓ done ({time.time() - t0:.1f}s)")
+    print(f" [OK] done ({time.time() - t0:.1f}s)")
 
-    # ── Step 4: Select Top-N ──────────────────────────────────────────────
+    # -- Step 4: Select Top-N ----------------------------------------------
     print(f"  Selecting top {top_n}...")
     top_results = heapq.nlargest(top_n, scored, key=lambda x: x[0])
     top_results.sort(key=lambda x: (-x[0], x[1].get("candidate_id", "")))
 
     top_score = top_results[0][0] if top_results else 0
     bottom_score = top_results[-1][0] if top_results else 0
-    print(f"  Score range: {top_score:.4f} → {bottom_score:.4f}")
+    print(f"  Score range: {top_score:.4f} -> {bottom_score:.4f}")
 
-    # ── Step 5: Optional Gemini Enrichment ───────────────────────────────
+    # -- Step 5: Optional Gemini Enrichment -------------------------------
     if enrich_reasoning and config.get("enable_reasoning_enrichment", False):
         print("  Enriching reasoning with Gemini API (offline step)...")
         try:
@@ -148,9 +148,9 @@ def rank_candidates(
                 api_key=config.get("gemini_api_key", ""),
             )
         except Exception as e:
-            print(f"  ⚠ Enrichment failed ({e}), using template reasoning")
+            print(f"  [WARN] Enrichment failed ({e}), using template reasoning")
 
-    # ── Step 6: Write Submission CSV ──────────────────────────────────────
+    # -- Step 6: Write Submission CSV --------------------------------------
     print(f"  Writing submission CSV to: {output_path}")
     out_path = Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -173,21 +173,21 @@ def rank_candidates(
                 reasoning,
             ])
 
-    # ── Step 7: Summary ───────────────────────────────────────────────────
+    # -- Step 7: Summary ---------------------------------------------------
     total_time = time.time() - t_start
     print()
-    print("━" * 60)
-    print(f"  ✓ Submission written to: {out_path}")
-    print(f"  ✓ Candidates ranked:     {len(candidates):,}")
-    print(f"  ✓ Top score:             {top_score:.4f}")
-    print(f"  ✓ Rank-100 score:        {bottom_score:.4f}")
-    print(f"  ✓ Total runtime:         {total_time:.1f}s")
-    print("━" * 60)
+    print("=" * 60)
+    print(f"  [OK] Submission written to: {out_path}")
+    print(f"  [OK] Candidates ranked:     {len(candidates):,}")
+    print(f"  [OK] Top score:             {top_score:.4f}")
+    print(f"  [OK] Rank-100 score:        {bottom_score:.4f}")
+    print(f"  [OK] Total runtime:         {total_time:.1f}s")
+    print("=" * 60)
 
     # Print top 10 preview
     print("\n  TOP 10 CANDIDATES:")
     print(f"  {'Rank':<6} {'Candidate ID':<15} {'Score':<8} {'Hireability':<13} {'Title'}")
-    print("  " + "─" * 70)
+    print("  " + "-" * 70)
     for rank, (score, cand, comp) in enumerate(top_results[:10], start=1):
         hi = comp.get("hireability_index", {})
         hi_score = hi.get("overall", 0) if hi else 0
@@ -197,7 +197,7 @@ def rank_candidates(
     return top_results
 
 
-# ── Entry Point ───────────────────────────────────────────────────────────────
+# -- Entry Point ---------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(
         description="APTIVA AI — Redrob Hackathon Candidate Ranker",
@@ -233,7 +233,7 @@ Examples:
         loader = DatasetLoader(data_dir="./data")
         status = loader.auto_setup()
         if not status["dataset_ready"]:
-            print("❌ No dataset found. Place ZIP in data/ or use --candidates flag.")
+            print("[ERROR] No dataset found. Place ZIP in data/ or use --candidates flag.")
             sys.exit(1)
         candidates_path = str(loader.get_candidates_path())
         print(f"  Auto-detected dataset: {candidates_path}")

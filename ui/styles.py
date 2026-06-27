@@ -474,18 +474,31 @@ hr { border: none !important; border-top: 1px solid #E8E8ED !important; margin: 
         unsafe_allow_html=True,
     )
 
-def page_header(title: str, subtitle: str = "", icon: str = ""):
-    """Render a consistent page header."""
-    icon_str = f"{icon} " if icon else ""
+def page_header(title: str, subtitle: str = "", icon_svg: str = ""):
+    """Render a consistent page header with optional SVG icon."""
+    if icon_svg:
+        title_html = (
+            f'<div style="display:flex;align-items:center;gap:0.625rem;'
+            f'margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.025em;'
+            f'color:#1D1D1F;line-height:1.2">'
+            f'<span style="flex-shrink:0;color:#1D1D1F">{icon_svg}</span>'
+            f'<span>{title}</span>'
+            f'</div>'
+        )
+    else:
+        title_html = (
+            f'<h1 style="margin:0;font-size:1.75rem;font-weight:700;'
+            f'letter-spacing:-0.025em;color:#1D1D1F">{title}</h1>'
+        )
+    subtitle_html = (
+        f'<p style="margin:0.375rem 0 0;color:#6E6E73;font-size:0.9375rem">{subtitle}</p>'
+        if subtitle else ""
+    )
     st.markdown(
-        f"""
-<div style="margin-bottom:1.5rem">
-  <h1 style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.025em">{icon_str}{title}</h1>
-  {"<p style='margin:0.25rem 0 0;color:#6E6E73;font-size:0.9375rem'>" + subtitle + "</p>" if subtitle else ""}
-</div>
-""",
+        f'<div style="margin-bottom:1.5rem">{title_html}{subtitle_html}</div>',
         unsafe_allow_html=True,
     )
+
 
 
 def section_label(text: str):

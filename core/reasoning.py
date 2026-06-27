@@ -80,7 +80,7 @@ def _template_reasoning(candidate: Dict, rank: int, components: Dict) -> str:
     hi_score = hi.get("overall", 50) if hi else 50
     final_score = components.get("final_score", 0)
 
-    # ── Issue #3: Relevance Gate disclosure ──────────────────────────────────
+    # -- Issue #3: Relevance Gate disclosure ----------------------------------
     # Short-circuit before any template branch — gated candidates must not
     # receive reasoning that implies JD domain fit.
     if components.get("relevance_gated", False):
@@ -146,16 +146,16 @@ def _template_reasoning(candidate: Dict, rank: int, components: Dict) -> str:
     s_str = "; ".join(strengths[:2]) if strengths else "adequate profile fit"
     c_str = (f"; concern: {concerns[0]}" if concerns else "")
 
-    # ── Issue #1: Top-10 — Final Score is the primary cited metric ───────────
+    # -- Issue #1: Top-10 — Final Score is the primary cited metric -----------
     if rank <= 10:
         return (
             f"Rank #{rank}: {s_str}, {location}-based, "
             f"Final Score {final_score:.4f} (HI {hi_score:.0f}/100){c_str}."
         )
-    # ── Issue #2: Ranks 11–50 — append Final Score so every row is auditable ─
+    # -- Issue #2: Ranks 11–50 — append Final Score so every row is auditable -
     elif rank <= 50:
         return f"{s_str}, {location} [FS {final_score:.4f}]{c_str}."
-    # ── Issue #2: Ranks 51–100 — explicit Final Score replaces vague text ────
+    # -- Issue #2: Ranks 51–100 — explicit Final Score replaces vague text ----
     else:
         first = strengths[0] if strengths else "adjacent candidate"
         concern_part = f"; concern: {concerns[0]}" if concerns else ""

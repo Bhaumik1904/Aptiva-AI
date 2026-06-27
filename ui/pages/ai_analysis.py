@@ -203,15 +203,15 @@ def render(state: dict):
     st.markdown("---")
     nc1, nc2, nc3 = st.columns(3)
     with nc1:
-        if st.button("Full Profile", use_container_width=True):
+        if st.button("Full Profile", use_container_width=True, icon=":material/person:"):
             state["page"] = "candidate_profile"
             st.rerun()
     with nc2:
-        if st.button("Judge Mode", use_container_width=True):
+        if st.button("Judge Mode", use_container_width=True, icon=":material/gavel:"):
             state["page"] = "judge_mode"
             st.rerun()
     with nc3:
-        if st.button("Back to Rankings", use_container_width=True):
+        if st.button("Back to Rankings", use_container_width=True, icon=":material/arrow_back:"):
             state["page"] = "home"
             st.rerun()
 

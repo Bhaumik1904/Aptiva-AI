@@ -32,7 +32,7 @@ def build_career_text(candidate: dict) -> str:
 def build_jd_text() -> str:
     """Build weighted JD text (repeat keywords to boost TF-IDF weight)."""
     keywords = JD_CONFIG["jd_career_keywords"]
-    # Repeat × 5 to give JD keywords heavy weight
+    # Repeat x 5 to give JD keywords heavy weight
     return " ".join(keywords * 5)
 
 
@@ -47,8 +47,8 @@ def build_tfidf_index(
 
     Returns:
         vectorizer: Fitted TfidfVectorizer
-        career_matrix: Sparse matrix (n_candidates × n_features)
-        jd_vec: JD feature vector (1 × n_features)
+        career_matrix: Sparse matrix (n_candidates x n_features)
+        jd_vec: JD feature vector (1 x n_features)
         similarities: numpy array of cosine similarities (n_candidates,)
     """
     career_texts = [build_career_text(c) for c in candidates]
@@ -80,7 +80,7 @@ def compute_skill_relevance_score(candidate: dict) -> float:
     """
     0.0–1.0 skill relevance score based on keyword overlap.
     Used in the hybrid career scoring formula:
-        career_score = 0.7 × tfidf_similarity + 0.3 × skill_relevance
+        career_score = 0.7 x tfidf_similarity + 0.3 x skill_relevance
     """
     core_skills = [s.lower() for s in JD_CONFIG["core_skills"]]
     bonus_skills = [s.lower() for s in JD_CONFIG["bonus_skills"]]

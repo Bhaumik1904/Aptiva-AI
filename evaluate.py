@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 
-# ── Relevance Scale ────────────────────────────────────────────────────────────
+# -- Relevance Scale ------------------------------------------------------------
 RELEVANCE_LABELS = {
     0: "Not Relevant  (non-AI/ML profile, honeypot, trap)",
     1: "Adjacent      (technical but not AI/ML core)",
@@ -38,7 +38,7 @@ RELEVANCE_LABELS = {
 RELEVANT_THRESHOLD = 1  # rel >= 1 is considered a "relevant" document for MAP/P@K
 
 
-# ── Core Metric Implementations ───────────────────────────────────────────────
+# -- Core Metric Implementations -----------------------------------------------
 
 def dcg_at_k(relevances: List[float], k: int) -> float:
     """
@@ -122,7 +122,7 @@ def mean_reciprocal_rank(relevances: List[float],
     return 0.0
 
 
-# ── I/O ───────────────────────────────────────────────────────────────────────
+# -- I/O -----------------------------------------------------------------------
 
 def load_predictions(csv_path: str) -> List[Tuple[int, str, float]]:
     """
@@ -153,7 +153,7 @@ def load_predictions(csv_path: str) -> List[Tuple[int, str, float]]:
 def load_ground_truth(csv_path: str) -> Dict[str, int]:
     """
     Load ground truth labels.
-    Returns dict: candidate_id → relevance (integer 0–3).
+    Returns dict: candidate_id -> relevance (integer 0–3).
     Expected format: candidate_id, relevance
     """
     labels = {}
@@ -176,7 +176,7 @@ def load_ground_truth(csv_path: str) -> Dict[str, int]:
     return labels
 
 
-# ── Evaluation Engine ─────────────────────────────────────────────────────────
+# -- Evaluation Engine ---------------------------------------------------------
 
 def evaluate(predictions: List[Tuple[int, str, float]],
              ground_truth: Dict[str, int],
@@ -187,7 +187,7 @@ def evaluate(predictions: List[Tuple[int, str, float]],
 
     Args:
         predictions: List of (rank, candidate_id, score) sorted by rank.
-        ground_truth: Dict mapping candidate_id → relevance score.
+        ground_truth: Dict mapping candidate_id -> relevance score.
         k_values: Tuple of K values for NDCG and other @K metrics.
         verbose: If True, print per-candidate details.
 
@@ -229,15 +229,15 @@ def evaluate(predictions: List[Tuple[int, str, float]],
 
     # Per-candidate verbose output
     if verbose:
-        print(f"\n{'─'*75}")
+        print(f"\n{'-'*75}")
         print(f"  {'Rank':>4}  {'Candidate':<15}  {'Score':>7}  {'Relevance':>10}  Label")
-        print(f"{'─'*75}")
+        print(f"{'-'*75}")
         for rank, cid, rel in ranked_cids[:max(k_values)]:
             label = RELEVANCE_LABELS.get(rel, "?")
-            marker = "✓" if rel >= RELEVANT_THRESHOLD else "✗"
+            marker = "[OK]" if rel >= RELEVANT_THRESHOLD else "[FAIL]"
             print(f"  {rank:4d}  {cid:<15}  {predictions[rank-1][2]:7.4f}  "
                   f"{rel:>10}  {marker} {label}")
-        print(f"{'─'*75}")
+        print(f"{'-'*75}")
 
     # Compute NDCG@K for each K
     for k in k_values:
@@ -264,7 +264,7 @@ def evaluate(predictions: List[Tuple[int, str, float]],
     return results
 
 
-# ── Report Formatter ──────────────────────────────────────────────────────────
+# -- Report Formatter ----------------------------------------------------------
 
 def format_report(results: Dict,
                   predictions_path: str,
@@ -279,14 +279,14 @@ def format_report(results: Dict,
     lines.append(f"  Ground truth: {ground_truth_path}")
     lines.append(f"  Ranked candidates : {results['n_predictions']}")
     lines.append(f"  Labelled in GT    : {results['n_ground_truth']}")
-    lines.append(f"  Unlabelled (→ 0)  : {results['n_unlabelled']}")
+    lines.append(f"  Unlabelled (-> 0)  : {results['n_unlabelled']}")
     lines.append(f"  Relevant in GT    : {results['n_relevant_in_gt']}")
     lines.append("")
 
     # Primary metrics table (matching challenge evaluation criteria)
-    lines.append("─" * 65)
+    lines.append("-" * 65)
     lines.append("  PRIMARY METRICS  (challenge evaluation criteria)")
-    lines.append("─" * 65)
+    lines.append("-" * 65)
 
     m = results["metrics"]
 
@@ -299,13 +299,13 @@ def format_report(results: Dict,
 
     for metric, value, weight, note in challenge_metrics:
         bar_len = int(value * 30)
-        bar = "█" * bar_len + "░" * (30 - bar_len)
+        bar = "#" * bar_len + "-" * (30 - bar_len)
         lines.append(f"  {metric:<14} {value:6.4f}  [{bar}]  (weight {weight})  {note}")
 
     lines.append("")
-    lines.append("─" * 65)
+    lines.append("-" * 65)
     lines.append("  ADDITIONAL METRICS")
-    lines.append("─" * 65)
+    lines.append("-" * 65)
 
     additional = [
         ("MRR",           m.get("MRR",           0), "Mean Reciprocal Rank"),
@@ -318,9 +318,9 @@ def format_report(results: Dict,
         lines.append(f"  {metric:<14} {value:6.4f}    {note}")
 
     lines.append("")
-    lines.append("─" * 65)
+    lines.append("-" * 65)
     lines.append("  RELEVANCE DISTRIBUTION")
-    lines.append("─" * 65)
+    lines.append("-" * 65)
 
     for k in k_values:
         dist = results.get(f"relevance_dist@{k}", {})
@@ -334,9 +334,9 @@ def format_report(results: Dict,
             lines.append(f"    [{rel}] {label} : {count:3d}  ({pct:5.1f}%)")
         lines.append("")
 
-    lines.append("─" * 65)
+    lines.append("-" * 65)
     lines.append("  SCORE INTERPRETATION")
-    lines.append("─" * 65)
+    lines.append("-" * 65)
 
     ndcg10 = m.get("NDCG@10", 0)
     if ndcg10 >= 0.90:
@@ -350,7 +350,7 @@ def format_report(results: Dict,
     else:
         interpretation = "Weak — significant ordering problems detected"
 
-    lines.append(f"  NDCG@10 = {ndcg10:.4f} → {interpretation}")
+    lines.append(f"  NDCG@10 = {ndcg10:.4f} -> {interpretation}")
     lines.append("")
     lines.append("  Relevance scale used:")
     for rel, desc in RELEVANCE_LABELS.items():
@@ -362,7 +362,7 @@ def format_report(results: Dict,
     return "\n".join(lines)
 
 
-# ── CLI ───────────────────────────────────────────────────────────────────────
+# -- CLI -----------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(

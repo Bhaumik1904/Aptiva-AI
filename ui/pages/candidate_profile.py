@@ -216,7 +216,7 @@ def render(state: dict):
 
         # Navigate to Judge Mode
         st.markdown("---")
-        if st.button("Open in Judge Mode", use_container_width=False):
+        if st.button("Open in Judge Mode", use_container_width=False, icon=":material/gavel:"):
             state["page"] = "judge_mode"
             st.rerun()
 

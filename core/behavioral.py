@@ -1,10 +1,10 @@
 """
 APTIVA AI — Behavioral Multiplier & Availability/Trust Scores
 Computes the behavioral engagement multiplier (0.75–1.15) and
-sub-scores for Availability and Trust used in the Hireability Index™.
+sub-scores for Availability and Trust used in the Hireability Index.
 
 System B (Soft BM): clamp range reduced from [0.10, 1.25] to [0.75, 1.15].
-Behavioral signals act as a secondary tiebreaker (±15%), not a ranking engine.
+Behavioral signals act as a secondary tiebreaker (+/-15%), not a ranking engine.
 All internal signal logic is unchanged.
 """
 
@@ -19,14 +19,14 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
 
     System B Soft BM: final score clamped to [0.75, 1.15] after all
     signal calculations, so behavioral signals adjust ranking by at most
-    ±15% rather than acting as a primary ranking determinant.
+    +/-15% rather than acting as a primary ranking determinant.
     """
     signals = candidate.get("redrob_signals", {})
     today = datetime.now().date()
 
     score = 1.0
 
-    # ── Recency of Activity ───────────────────────────────────────────────
+    # -- Recency of Activity -----------------------------------------------
     try:
         last_active_str = signals.get("last_active_date", "")
         last_active = datetime.strptime(last_active_str[:10], "%Y-%m-%d").date()
@@ -45,11 +45,11 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
     else:
         score *= 0.40  # Ghost candidate
 
-    # ── Open to Work ─────────────────────────────────────────────────────
+    # -- Open to Work -----------------------------------------------------
     if signals.get("open_to_work_flag", False):
         score *= 1.10
 
-    # ── Notice Period ─────────────────────────────────────────────────────
+    # -- Notice Period -----------------------------------------------------
     notice = signals.get("notice_period_days", 90)
     if notice <= 15:
         score *= 1.12
@@ -64,7 +64,7 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
     else:
         score *= 0.60  # 120+ day notice is near-disqualifying
 
-    # ── Recruiter Response Rate ───────────────────────────────────────────
+    # -- Recruiter Response Rate -------------------------------------------
     rr = signals.get("recruiter_response_rate", 0.5)
     if rr >= 0.70:
         score *= 1.10
@@ -75,7 +75,7 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
     else:
         score *= 0.65  # Won't respond
 
-    # ── Interview Completion Rate ─────────────────────────────────────────
+    # -- Interview Completion Rate -----------------------------------------
     icr = signals.get("interview_completion_rate", 0.6)
     if icr >= 0.80:
         score *= 1.05
@@ -84,7 +84,7 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
     elif icr < 0.40:
         score *= 0.85
 
-    # ── Average Response Time ─────────────────────────────────────────────
+    # -- Average Response Time ---------------------------------------------
     art = signals.get("avg_response_time_hours", 48)
     if art <= 24:
         score *= 1.05
@@ -93,14 +93,14 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
     elif art > 168:  # > 1 week
         score *= 0.90
 
-    # ── Profile Completeness ──────────────────────────────────────────────
+    # -- Profile Completeness ----------------------------------------------
     pcs = signals.get("profile_completeness_score", 50)
     if pcs >= 80:
         score *= 1.05
     elif pcs < 40:
         score *= 0.80
 
-    # ── GitHub Activity ───────────────────────────────────────────────────
+    # -- GitHub Activity ---------------------------------------------------
     github = signals.get("github_activity_score", -1)
     if github == -1:
         score *= 0.95  # No GitHub is mild negative for AI Engineer
@@ -109,18 +109,18 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
     elif github >= 30:
         score *= 1.03
 
-    # ── Verification ─────────────────────────────────────────────────────
+    # -- Verification -----------------------------------------------------
     verified = int(signals.get("verified_email", False)) + int(signals.get("verified_phone", False))
     score *= (0.90 + verified * 0.05)  # 0.90 / 0.95 / 1.00
 
-    # ── Recruiter Market Interest ─────────────────────────────────────────
+    # -- Recruiter Market Interest -----------------------------------------
     saved = signals.get("saved_by_recruiters_30d", 0)
     if saved >= 10:
         score *= 1.05
     elif saved >= 3:
         score *= 1.02
 
-    # ── Offer Acceptance Rate ─────────────────────────────────────────────
+    # -- Offer Acceptance Rate ---------------------------------------------
     oar = signals.get("offer_acceptance_rate", -1)
     if oar != -1:
         if oar >= 0.70:
@@ -133,7 +133,7 @@ def compute_behavioral_multiplier(candidate: Dict) -> float:
 
 def compute_availability_score(signals: Dict) -> float:
     """
-    0.0–1.0 availability sub-score for Hireability Index™.
+    0.0–1.0 availability sub-score for Hireability Index.
     Focuses on: recency, open-to-work, notice period, applications.
     """
     today = datetime.now().date()
@@ -185,7 +185,7 @@ def compute_availability_score(signals: Dict) -> float:
 
 def compute_trust_score(candidate: Dict) -> float:
     """
-    0.0–1.0 trust sub-score for Hireability Index™.
+    0.0–1.0 trust sub-score for Hireability Index.
     Focuses on: verifications, completeness, LinkedIn, assessments.
     """
     signals = candidate.get("redrob_signals", {})

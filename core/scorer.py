@@ -1,7 +1,7 @@
 """
 APTIVA AI — Scoring Engine
 All 7 component scoring functions + final score combiner.
-Implements the hybrid career scoring: 0.7 × TF-IDF + 0.3 × Skill Relevance.
+Implements the hybrid career scoring: 0.7 x TF-IDF + 0.3 x Skill Relevance.
 """
 
 from typing import Dict, Tuple
@@ -22,7 +22,7 @@ from core.honeypot import detect_honeypot
 from core.jd_config import JD_CONFIG
 from core.tfidf_engine import compute_skill_relevance_score
 
-# ── Scoring Weights ───────────────────────────────────────────────────────────
+# -- Scoring Weights -----------------------------------------------------------
 WEIGHTS = {
     "title":      0.30,
     "skills":     0.25,
@@ -34,7 +34,7 @@ WEIGHTS = {
 }
 
 
-# ── Component 1: Title Match ──────────────────────────────────────────────────
+# -- Component 1: Title Match --------------------------------------------------
 
 def score_title(candidate: Dict) -> float:
     """0.0–1.0. Title is the single most decisive filter."""
@@ -61,10 +61,10 @@ def score_title(candidate: Dict) -> float:
     return best_score
 
 
-# ── Component 2: Skill Trust ──────────────────────────────────────────────────
+# -- Component 2: Skill Trust --------------------------------------------------
 
 def score_skills(candidate: Dict) -> float:
-    """0.0–1.0. Weighted by proficiency × endorsements × duration × assessment."""
+    """0.0–1.0. Weighted by proficiency x endorsements x duration x assessment."""
     skills = candidate.get("skills", [])
     assessments = candidate.get("redrob_signals", {}).get("skill_assessment_scores", {})
 
@@ -113,12 +113,12 @@ def score_skills(candidate: Dict) -> float:
     return min(1.0, 0.80 * core_score + 0.20 * bonus_score)
 
 
-# ── Component 3: Career Substance (HYBRID) ────────────────────────────────────
+# -- Component 3: Career Substance (HYBRID) ------------------------------------
 
 def score_career_substance(tfidf_similarity: float, candidate: Dict) -> float:
     """
     Hybrid career score:
-        career_score = 0.7 × TF-IDF Similarity + 0.3 × Skill Relevance Score
+        career_score = 0.7 x TF-IDF Similarity + 0.3 x Skill Relevance Score
 
     Also applies:
     - Consulting-firm penalty
@@ -152,7 +152,7 @@ def score_career_substance(tfidf_similarity: float, candidate: Dict) -> float:
     return min(1.0, max(0.0, hybrid_score + product_bonus - consulting_penalty))
 
 
-# ── Component 4: Experience Window ────────────────────────────────────────────
+# -- Component 4: Experience Window --------------------------------------------
 
 def score_experience(candidate: Dict) -> float:
     """0.0–1.0. Optimal: 6–8 years. JD target: 5–9."""
@@ -173,7 +173,7 @@ def score_experience(candidate: Dict) -> float:
         return max(0.0, yoe / 4 * 0.50)
 
 
-# ── Component 5: Education ────────────────────────────────────────────────────
+# -- Component 5: Education ----------------------------------------------------
 
 def score_education(candidate: Dict) -> float:
     """0.0–1.0. Best degree wins (not averaged)."""
@@ -214,7 +214,7 @@ def score_education(candidate: Dict) -> float:
     return min(1.0, best)
 
 
-# ── Component 6: Location ─────────────────────────────────────────────────────
+# -- Component 6: Location -----------------------------------------------------
 
 def score_location(candidate: Dict) -> float:
     """0.0–1.0. JD prefers Pune/Noida/Delhi NCR/Hyderabad/Mumbai/Bangalore."""
@@ -231,7 +231,7 @@ def score_location(candidate: Dict) -> float:
         return 0.40 if willing else 0.15
 
 
-# ── Engagement Base ───────────────────────────────────────────────────────────
+# -- Engagement Base -----------------------------------------------------------
 
 def score_engagement_base(candidate: Dict) -> float:
     """0.0–1.0. Simple engagement signal for the base weighted score."""
@@ -242,7 +242,7 @@ def score_engagement_base(candidate: Dict) -> float:
     return min(1.0, 0.30 * pcs + 0.30 * otw + 0.40 * rr)
 
 
-# ── Final Score Combiner ──────────────────────────────────────────────────────
+# -- Final Score Combiner ------------------------------------------------------
 
 def compute_final_score(candidate: Dict, tfidf_similarity: float) -> Tuple[float, Dict]:
     """
@@ -290,7 +290,7 @@ def compute_final_score(candidate: Dict, tfidf_similarity: float) -> Tuple[float
     # Apply behavioral multiplier
     final_score = min(1.0, base_score * behavioral_mult)
 
-    # ── Relevance Gate ────────────────────────────────────────────────────────
+    # -- Relevance Gate --------------------------------------------------------
     # Prevents candidates with no AI/ML title, skills, or career evidence from
     # outranking legitimate tech candidates via domain-agnostic signals alone
     # (experience window, location, education tier, engagement).
@@ -328,7 +328,7 @@ def compute_final_score(candidate: Dict, tfidf_similarity: float) -> Tuple[float
         "honeypot_flags":      [],
     }
 
-    # Hireability Index™
+    # Hireability Index
     hi = compute_hireability_index(components)
     components["hireability_index"] = hi
 

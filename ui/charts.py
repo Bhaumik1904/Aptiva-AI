@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 
-# ── Shared Theme ──────────────────────────────────────────────────────────────
+# -- Shared Theme --------------------------------------------------------------
 COLORS = {
     "accent":   "#0071E3",
     "success":  "#1A8917",
@@ -39,16 +39,16 @@ def _score_color(score: float) -> str:
     return COLORS["danger"]
 
 
-# ── Hireability Index Gauge ───────────────────────────────────────────────────
+# -- Hireability Index Gauge ---------------------------------------------------
 
 def hireability_gauge(hi_score: float, candidate_name: str = "") -> go.Figure:
-    """Circular gauge for Hireability Index™."""
+    """Circular gauge for Hireability Index."""
     color = COLORS["success"] if hi_score >= 80 else COLORS["accent"] if hi_score >= 65 else COLORS["warning"] if hi_score >= 50 else COLORS["danger"]
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=hi_score,
         number={"suffix": "/100", "font": {"size": 32, "color": color, "family": "-apple-system"}},
-        title={"text": "Hireability Index™", "font": {"size": 13, "color": COLORS["text_2"]}},
+        title={"text": "Hireability Index", "font": {"size": 13, "color": COLORS["text_2"]}},
         gauge={
             "axis": {"range": [0, 100], "tickwidth": 0, "showticklabels": False},
             "bar": {"color": color, "thickness": 0.75},
@@ -71,7 +71,7 @@ def hireability_gauge(hi_score: float, candidate_name: str = "") -> go.Figure:
     return fig
 
 
-# ── Score Breakdown Bar Chart ─────────────────────────────────────────────────
+# -- Score Breakdown Bar Chart -------------------------------------------------
 
 def score_breakdown_chart(components: Dict) -> go.Figure:
     """Horizontal bar chart for 7-component score breakdown."""
@@ -103,7 +103,7 @@ def score_breakdown_chart(components: Dict) -> go.Figure:
     return fig
 
 
-# ── Behavioral Signals Radar ──────────────────────────────────────────────────
+# -- Behavioral Signals Radar --------------------------------------------------
 
 def behavioral_radar(signals: Dict) -> go.Figure:
     """Radar chart for 8 key behavioral signals."""
@@ -156,7 +156,7 @@ def behavioral_radar(signals: Dict) -> go.Figure:
     return fig
 
 
-# ── Skill Match Chart ─────────────────────────────────────────────────────────
+# -- Skill Match Chart ---------------------------------------------------------
 
 def skill_match_chart(skill_gap: Dict) -> go.Figure:
     """Donut chart showing skill match percentage."""
@@ -192,7 +192,7 @@ def skill_match_chart(skill_gap: Dict) -> go.Figure:
     return fig
 
 
-# ── Experience Distribution ───────────────────────────────────────────────────
+# -- Experience Distribution ---------------------------------------------------
 
 def experience_distribution(candidates: List[Dict]) -> go.Figure:
     """Histogram of years_of_experience."""
@@ -217,7 +217,7 @@ def experience_distribution(candidates: List[Dict]) -> go.Figure:
     return fig
 
 
-# ── Top Skills Distribution ───────────────────────────────────────────────────
+# -- Top Skills Distribution ---------------------------------------------------
 
 def top_skills_chart(candidates: List[Dict], top_n: int = 15) -> go.Figure:
     """Bar chart of most common skills across all candidates."""
@@ -252,7 +252,7 @@ def top_skills_chart(candidates: List[Dict], top_n: int = 15) -> go.Figure:
     return fig
 
 
-# ── Location Distribution ─────────────────────────────────────────────────────
+# -- Location Distribution -----------------------------------------------------
 
 def location_distribution(candidates: List[Dict]) -> go.Figure:
     """Bar chart of candidate locations."""
@@ -288,7 +288,7 @@ def location_distribution(candidates: List[Dict]) -> go.Figure:
     return fig
 
 
-# ── Hireability Distribution ──────────────────────────────────────────────────
+# -- Hireability Distribution --------------------------------------------------
 
 def hireability_distribution(scored_candidates: List[Dict]) -> go.Figure:
     """Distribution of Hireability Index scores."""
@@ -311,14 +311,14 @@ def hireability_distribution(scored_candidates: List[Dict]) -> go.Figure:
     fig.update_layout(
         **BASE_LAYOUT,
         height=260,
-        title={"text": "Hireability Index™ Distribution", "font": {"size": 13, "color": COLORS["text_2"]}},
+        title={"text": "Hireability Index Distribution", "font": {"size": 13, "color": COLORS["text_2"]}},
         xaxis={"title": "Hireability Index Score", "showgrid": False},
         yaxis={"title": "Candidates", "showgrid": True, "gridcolor": "#F0F0F0"},
     )
     return fig
 
 
-# ── Final Score Distribution ──────────────────────────────────────────────────
+# -- Final Score Distribution --------------------------------------------------
 
 def final_score_distribution(scored_candidates: list) -> go.Figure:
     """Distribution of Final Scores — the primary ranking metric."""
@@ -341,7 +341,7 @@ def final_score_distribution(scored_candidates: list) -> go.Figure:
     return fig
 
 
-# ── Comparison Spider Chart ───────────────────────────────────────────────────
+# -- Comparison Spider Chart ---------------------------------------------------
 
 def comparison_radar(comp_a: Dict, comp_b: Dict, label_a: str = "Candidate A", label_b: str = "Candidate B") -> go.Figure:
     """Radar chart comparing two candidates across key dimensions."""

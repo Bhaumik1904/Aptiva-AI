@@ -1,5 +1,5 @@
 """
-APTIVA AI — Hireability Index™
+APTIVA AI — Hireability Index
 Proprietary single-score trust metric for recruiters.
 
 Formula:
@@ -27,7 +27,7 @@ HI_WEIGHTS = {
 
 def compute_hireability_index(components: Dict) -> Dict[str, float]:
     """
-    Compute the Hireability Index™ from scoring components.
+    Compute the Hireability Index from scoring components.
 
     Args:
         components: dict containing all scoring outputs:
@@ -54,7 +54,7 @@ def compute_hireability_index(components: Dict) -> Dict[str, float]:
     # Career Relevance: direct career substance score
     career_relevance = min(1.0, components.get("career", 0))
 
-    # Behavior Signals: normalize behavioral multiplier → (0–1)
+    # Behavior Signals: normalize behavioral multiplier -> (0–1)
     # Range updated to [0.75, 1.15] to match the System B BM clamp in behavioral.py.
     # Old range [0.10, 1.25] caused a permanent floor of 56.5% behavior_signals
     # for every candidate (BM never goes below 0.75 post-clamp).
@@ -66,7 +66,7 @@ def compute_hireability_index(components: Dict) -> Dict[str, float]:
     availability = min(1.0, components.get("availability", 0.5))
     trust = min(1.0, components.get("trust_score", 0.5))
 
-    # Weighted sum → 0-100
+    # Weighted sum -> 0-100
     overall = (
         HI_WEIGHTS["technical_fit"]    * technical_fit
         + HI_WEIGHTS["career_relevance"]  * career_relevance
@@ -86,13 +86,13 @@ def compute_hireability_index(components: Dict) -> Dict[str, float]:
 
 
 def get_hire_recommendation(hi_score: float, final_score: float) -> str:
-    """Map Final Score + Hireability Index™ to a hire recommendation label.
+    """Map Final Score + Hireability Index to a hire recommendation label.
 
     Final Score is the PRIMARY gate; HI is the confirming signal.
     All tiers use AND — HI alone cannot promote a low-scoring candidate.
     This ensures recommendation labels are always consistent with rank order.
 
-    Thresholds calibrated to the live HI distribution (observed max ≈ 64
+    Thresholds calibrated to the live HI distribution (observed max ~ 64
     for the top AI candidate in a mixed-role dataset):
 
       STRONG_YES: FS >= 0.75 AND HI >= 60  (elite AI fit + strong HI)

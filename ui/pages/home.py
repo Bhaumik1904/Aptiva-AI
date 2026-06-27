@@ -12,6 +12,7 @@ from ui.components import (
     render_empty_state,
     render_hireability_index,
 )
+from ui.icons import icon
 from ui.styles import page_header, section_label
 
 
@@ -20,6 +21,7 @@ def render(state: dict):
     page_header(
         "Candidate Rankings",
         "Top candidates ranked for Senior AI Engineer · Redrob AI",
+        icon("trophy", 26),
     )
 
     results = state.get("results", [])
@@ -187,19 +189,19 @@ def render(state: dict):
 
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            if st.button("View Profile", use_container_width=True, key="home_view_profile"):
+            if st.button("View Profile", use_container_width=True, key="home_view_profile", icon=":material/person:"):
                 st.session_state["page"] = "candidate_profile"
                 st.rerun()
         with col2:
-            if st.button("AI Analysis", use_container_width=True, key="home_ai_analysis"):
+            if st.button("AI Analysis", use_container_width=True, key="home_ai_analysis", icon=":material/psychology:"):
                 st.session_state["page"] = "ai_analysis"
                 st.rerun()
         with col3:
-            if st.button("Judge Mode", use_container_width=True, key="home_judge_mode"):
+            if st.button("Judge Mode", use_container_width=True, key="home_judge_mode", icon=":material/gavel:"):
                 st.session_state["page"] = "judge_mode"
                 st.rerun()
         with col4:
-            if st.button("Add to Compare", use_container_width=True, key="home_compare"):
+            if st.button("Add to Compare", use_container_width=True, key="home_compare", icon=":material/compare_arrows:"):
                 compare = st.session_state.get("compare_list", [])
                 if selected_cid in compare:
                     st.info(f"{selected_cid} is already in the comparison list.")

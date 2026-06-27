@@ -43,7 +43,7 @@ def analyze_skill_gap(candidate: Dict) -> Dict:
     # Index candidate skills for fast lookup
     c_skill_names = [s.get("name", "") for s in candidate_skills]
 
-    # ── Core Skills Analysis ──────────────────────────────────────────────
+    # -- Core Skills Analysis ----------------------------------------------
     required_skills = []
     present_core = []
     missing_core = []
@@ -92,7 +92,7 @@ def analyze_skill_gap(candidate: Dict) -> Dict:
             })
             missing_core.append(jd_skill)
 
-    # ── Bonus Skills Analysis ─────────────────────────────────────────────
+    # -- Bonus Skills Analysis ---------------------------------------------
     present_bonus = []
     missing_bonus = []
 
@@ -104,7 +104,7 @@ def analyze_skill_gap(candidate: Dict) -> Dict:
         else:
             missing_bonus.append(jd_skill)
 
-    # ── Candidate Unique Skills (not in JD at all) ─────────────────────────
+    # -- Candidate Unique Skills (not in JD at all) -------------------------
     all_jd_skills = JD_CONFIG["core_skills"] + JD_CONFIG["bonus_skills"]
     unique_skills = []
     for cs in candidate_skills:
@@ -116,7 +116,7 @@ def analyze_skill_gap(candidate: Dict) -> Dict:
                 "duration_months": cs.get("duration_months", 0),
             })
 
-    # ── Percentages ───────────────────────────────────────────────────────
+    # -- Percentages -------------------------------------------------------
     core_match_pct = len(present_core) / max(1, len(JD_CONFIG["core_skills"])) * 100
     bonus_match_pct = len(present_bonus) / max(1, len(JD_CONFIG["bonus_skills"])) * 100
     total_jd = len(JD_CONFIG["core_skills"]) + len(JD_CONFIG["bonus_skills"])
@@ -136,7 +136,7 @@ def analyze_skill_gap(candidate: Dict) -> Dict:
 
 
 def _compute_match_quality(skill: Dict, assessment_val) -> float:
-    """0.0–1.0 quality of a matched skill (proficiency × duration × assessment)."""
+    """0.0–1.0 quality of a matched skill (proficiency x duration x assessment)."""
     prof_map = {"beginner": 0.25, "intermediate": 0.55, "advanced": 0.80, "expert": 1.0}
     prof = prof_map.get(skill.get("proficiency", "intermediate"), 0.55)
 

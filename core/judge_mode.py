@@ -48,7 +48,7 @@ def generate_judge_verdict(candidate: Dict, components: Dict, rank: int) -> Dict
     missing_core = skill_gap.get("missing_core_skills", [])[:3]
     present_core = skill_gap.get("present_core_skills", [])[:3]
 
-    # ── Why Recommended ───────────────────────────────────────────────────
+    # -- Why Recommended ---------------------------------------------------
     why_recommended_parts = []
     if components.get("title", 0) >= 0.75:
         why_recommended_parts.append(f"holds a relevant {title} role")
@@ -77,7 +77,7 @@ def generate_judge_verdict(candidate: Dict, components: Dict, rank: int) -> Dict
             f"with the Senior AI Engineer requirements."
         )
 
-    # ── Why Not Ranked Higher ─────────────────────────────────────────────
+    # -- Why Not Ranked Higher ---------------------------------------------
     why_not_higher_parts = []
 
     if missing_core:
@@ -99,7 +99,7 @@ def generate_judge_verdict(candidate: Dict, components: Dict, rank: int) -> Dict
     else:
         why_not_higher = f"Candidate is well-ranked; minor gaps prevent a higher position."
 
-    # ── Biggest Strength ──────────────────────────────────────────────────
+    # -- Biggest Strength --------------------------------------------------
     strength_candidates = []
     if top_skills:
         strength_candidates.append(
@@ -128,7 +128,7 @@ def generate_judge_verdict(candidate: Dict, components: Dict, rank: int) -> Dict
     else:
         biggest_strength = "Adjacent technical background with transferable skills."
 
-    # ── Biggest Weakness ──────────────────────────────────────────────────
+    # -- Biggest Weakness --------------------------------------------------
     weakness_candidates = []
     if missing_core:
         weakness_candidates.append(
@@ -151,7 +151,7 @@ def generate_judge_verdict(candidate: Dict, components: Dict, rank: int) -> Dict
     else:
         biggest_weakness = "No critical weaknesses identified — minor gaps only."
 
-    # ── Risk Factors ──────────────────────────────────────────────────────
+    # -- Risk Factors ------------------------------------------------------
     risk_factors = []
     risk_score = components.get("risk_score", 0)
 
@@ -171,7 +171,7 @@ def generate_judge_verdict(candidate: Dict, components: Dict, rank: int) -> Dict
     if not risk_factors:
         risk_factors.append("No significant risk factors identified")
 
-    # ── Interview Recommendation ──────────────────────────────────────────
+    # -- Interview Recommendation ------------------------------------------
     # Issue #3: Final Score is the primary cited metric in all verdict text.
     # HI appears only as a secondary supporting metric where relevant.
     recommendation = components.get("recommendation", "MAYBE")

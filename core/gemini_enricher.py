@@ -3,7 +3,7 @@ APTIVA AI — Gemini Reasoning Enricher
 OPTIONAL OFFLINE STEP. Never called during ranking.
 
 Workflow:
-  1. Run rank.py → get top-100 candidates
+  1. Run rank.py -> get top-100 candidates
   2. Run: python enrich_reasoning.py --submission submission.csv --candidates data/sample_candidates.json
   3. Enriched reasoning saved to precomputed_reasonings.json
   4. On next rank.py run, reasoning.py auto-loads the enriched file
@@ -38,7 +38,7 @@ def enrich_reasonings(
         output_path: where to save precomputed_reasonings.json
 
     Returns:
-        dict mapping candidate_id → enriched_reasoning_string
+        dict mapping candidate_id -> enriched_reasoning_string
     """
     try:
         import google.generativeai as genai
@@ -102,7 +102,7 @@ def enrich_reasonings(
             _save(enriched, output_path)
 
     _save(enriched, output_path)
-    print(f"✓ Enriched {len(enriched)} reasonings saved to {output_path}")
+    print(f"[OK] Enriched {len(enriched)} reasonings saved to {output_path}")
     return enriched
 
 

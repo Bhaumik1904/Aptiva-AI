@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 
-# ── File discovery mapping ────────────────────────────────────────────────────
+# -- File discovery mapping ----------------------------------------------------
 
 EXPECTED_FILES = {
     "candidates_jsonl": ["candidates.jsonl"],
@@ -44,11 +44,11 @@ class DatasetLoader:
         self.extraction_log: List[str] = []
         self._extracted = False
 
-    # ── ZIP Detection & Extraction ────────────────────────────────────────────
+    # -- ZIP Detection & Extraction --------------------------------------------
 
     def auto_setup(self) -> Dict[str, Any]:
         """
-        Full setup: detect ZIP → extract → discover files → return status.
+        Full setup: detect ZIP -> extract -> discover files -> return status.
         Returns a status dict describing what was found.
         """
         status = {
@@ -133,7 +133,7 @@ class DatasetLoader:
                 else:
                     zf.extract(member, self.data_dir)
 
-    # ── File Discovery ────────────────────────────────────────────────────────
+    # -- File Discovery --------------------------------------------------------
 
     def _discover_files(self) -> None:
         """Recursively search data_dir for all expected files."""
@@ -160,7 +160,7 @@ class DatasetLoader:
             or self.discovered.get("sample_candidates")
         )
 
-    # ── Data Loading ──────────────────────────────────────────────────────────
+    # -- Data Loading ----------------------------------------------------------
 
     def get_candidates_path(self) -> Optional[Path]:
         """Return path to main candidates file (full or sample)."""
@@ -227,7 +227,7 @@ class DatasetLoader:
         """Load all candidates into memory. Use only when RAM allows."""
         return list(self.stream_candidates(path))
 
-    # ── Statistics ────────────────────────────────────────────────────────────
+    # -- Statistics ------------------------------------------------------------
 
     def get_dataset_stats(self, candidates: List[Dict]) -> Dict[str, Any]:
         """Compute basic statistics over a loaded candidate list."""
