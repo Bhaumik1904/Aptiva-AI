@@ -216,9 +216,78 @@ def render(state: dict):
     # ── Download ──────────────────────────────────────────────────────────
     st.markdown("---")
     if state.get("submission_csv"):
-        st.download_button(
-            "Download submission.csv",
-            data=state["submission_csv"],
-            file_name="submission.csv",
-            mime="text/csv",
-        )
+        SUBMISSION_FILENAME = "submission.csv"
+        
+        col_dl1, col_dl2 = st.columns(2)
+        with col_dl1:
+            recruiter_csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "⬇ Download Recruiter Report",
+                data=recruiter_csv,
+                file_name="recruiter_report.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+            
+        with col_dl2:
+            submission_data = state["submission_csv"]
+            is_valid = True
+            error_msg = ""
+            
+            try:
+                import io, csv
+                reader = list(csv.reader(io.StringIO(submission_data)))
+                if not reader:
+                    is_valid = False
+                    error_msg = "CSV is empty."
+                else:
+                    header = reader[0]
+                    expected_header = ["candidate_id", "rank", "score", "reasoning"]
+                    if header != expected_header:
+                        is_valid = False
+                        error_msg = f"Invalid columns. Expected {expected_header}, got {header}."
+                    else:
+                        rows_data = reader[1:]
+                        if len(rows_data) != 100:
+                            is_valid = False
+                            error_msg = f"Expected exactly 100 candidates, got {len(rows_data)}."
+                        else:
+                            candidate_ids = set()
+                            for i, row in enumerate(rows_data):
+                                if len(row) != 4:
+                                    is_valid = False
+                                    error_msg = f"Row {i+1} does not have exactly 4 columns."
+                                    break
+                                
+                                cid, r_rank, r_score, r_reason = row
+                                
+                                if cid in candidate_ids:
+                                    is_valid = False
+                                    error_msg = f"Duplicate candidate_id found: {cid}."
+                                    break
+                                candidate_ids.add(cid)
+                                
+                                try:
+                                    if int(r_rank) != i + 1:
+                                        is_valid = False
+                                        error_msg = f"Rank values out of order. Expected {i+1}, got {r_rank}."
+                                        break
+                                except ValueError:
+                                    is_valid = False
+                                    error_msg = f"Invalid rank value at row {i+1}: {r_rank}."
+                                    break
+            except Exception as e:
+                is_valid = False
+                error_msg = f"Validation exception: {str(e)}"
+            
+            if is_valid:
+                st.download_button(
+                    "⬇ Download Submission CSV",
+                    data=submission_data.encode('utf-8'),
+                    file_name=SUBMISSION_FILENAME,
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+            else:
+                st.error(f"**Submission Validation Failed:** {error_msg}")
+                st.button("⬇ Download Submission CSV", disabled=True, use_container_width=True)
