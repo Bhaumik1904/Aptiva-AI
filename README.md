@@ -14,17 +14,42 @@
 
 ## Live Demo
 
-**Live Streamlit Demo**  
+🌐 **Streamlit Cloud**  
 https://aptiva-ai.streamlit.app/
 
-**GitHub Repository**  
+💻 **GitHub Repository**  
 https://github.com/Bhaumik1904/Aptiva-AI
+
+**Automatic Demo Mode:**  
+Please note that the hosted Streamlit application automatically runs in **Demo Mode** using the official sample dataset (50 candidates). This is because the complete 100,000-candidate dataset cannot be hosted on GitHub or Streamlit Cloud due to file size limitations. 
+
+- **The ranking engine remains exactly the same.** 
+- **Demo Mode activation is automatic.** 
+- **Local execution with the official dataset automatically switches to Production Mode.**
+- **No configuration changes are required when switching between Demo Mode and Production Mode. Dataset detection is automatic.**
+
+This ensures that judges can fully experience the UI and the analytics dashboards online without compromising the integrity or functionality of the actual ranking pipeline.
+
+---
+
+## Quick Start
+
+Experience the APTIVA AI platform in under one minute:
+
+1. **Open the Streamlit Demo** using the link above.
+2. **Click Run Ranking** to process the candidate pool.
+3. **Open AI Analysis** for any top candidate to see a 15-dimension breakdown.
+4. **Explore Judge Mode** to view the simulated recruiter verdict.
+5. **Compare Candidates** side-by-side using the comparison tool.
+6. **Download Recruiter Report** directly from the Rankings Dashboard.
+
+*Note: The official Submission CSV export becomes available only when running locally against the complete 100,000-candidate dataset.*
 
 ---
 
 ## Executive Summary
 
-APTIVA AI is an intelligent candidate discovery and ranking engine purpose-built for the Redrob AI Hackathon challenge. Given a pool of 100,000 candidates, it identifies and ranks the Top-100 most qualified individuals for a **Senior AI Engineer** role using a deterministic, multi-component scoring pipeline. The ranking pipeline is optimized for CPU-only execution and is designed to satisfy the competition runtime constraint of under five minutes.
+APTIVA AI is an intelligent candidate discovery and ranking engine purpose-built for the Redrob AI Hackathon challenge. Given a pool of 100,000 candidates, it identifies and ranks the highest-matching candidates for a **Senior AI Engineer** role using a deterministic, multi-component scoring pipeline. The ranking pipeline is optimized for CPU-only execution and is designed to satisfy the competition runtime constraint of under five minutes.
 
 The system is designed around a single core principle: **a candidate should rank high only if they are genuinely qualified** — not because they stuffed keywords, not because they have high behavioral signals, and not because the ranking formula can be gamed. Every component of the scoring engine exists to enforce this principle.
 
@@ -43,38 +68,22 @@ The system is designed around a single core principle: **a candidate should rank
 
 ---
 
-## Hosted Demo
-
-The application is fully deployed and accessible on Streamlit Cloud at:  
-👉 **[https://aptiva-ai.streamlit.app/](https://aptiva-ai.streamlit.app/)**
-
-**Automatic Demo Mode:**  
-Please note that the hosted Streamlit application automatically runs in **Demo Mode** using the official sample dataset (50 candidates). This is because the complete 100,000-candidate dataset cannot be hosted on GitHub or Streamlit Cloud due to file size limitations. 
-
-- **The ranking engine remains exactly the same.** 
-- **Demo Mode activation is automatic.** 
-- **Local execution with the official dataset automatically switches to Production Mode.**
-
-This ensures that judges can fully experience the UI and the analytics dashboards online without compromising the integrity or functionality of the actual ranking pipeline.
-
----
-
 ## Application Preview
 
 ### Rankings Dashboard
-> Screenshot Placeholder
+![Rankings Dashboard](docs/images/rankings.png)
 
 ### AI Analysis
-> Screenshot Placeholder
+![AI Analysis](docs/images/ai_analysis.png)
 
 ### Candidate Profile
-> Screenshot Placeholder
+![Candidate Profile](docs/images/candidate_profile.png)
 
 ### Judge Mode
-> Screenshot Placeholder
+![Judge Mode](docs/images/judge_mode.png)
 
 ### Analytics Dashboard
-> Screenshot Placeholder
+![Analytics Dashboard](docs/images/analytics.png)
 
 ---
 
@@ -528,7 +537,7 @@ The ranker is **never dependent on Gemini.** This is a post-processing quality s
 
 The current architecture is optimized for the hackathon's strict compute constraints (≤5 minutes, CPU-only, no network). The following enhancements are designed and ready for implementation given cloud infrastructure:
 
-| Enhancement | Description | Expected NDCG Gain |
+| Enhancement | Description | Potential Improvement |
 |---|---|---|
 | **Dense Embeddings** | Replace TF-IDF with `sentence-transformers/all-MiniLM-L6-v2` for semantic career matching | +0.03–0.05 NDCG@10 |
 | **Bi-encoder Reranking** | Two-stage: TF-IDF for initial recall, cross-encoder for top-200 reranking | +0.04–0.07 NDCG@10 |
@@ -567,6 +576,7 @@ The current architecture is optimized for the hackathon's strict compute constra
 - [x] Reproducible execution steps
 - [x] Demo Mode support
 - [x] Optional Gemini enrichment performed only offline
+- [x] Explainable ranking reasoning
 
 ---
 
@@ -584,6 +594,14 @@ google-generativeai>=0.7.0  # (Optional) Gemini reasoning enrichment
 ```
 
 All ranking and scoring operations use only `scikit-learn`, `numpy`, and Python standard library. Zero GPU requirements.
+
+---
+
+## Acknowledgements
+
+Built as part of the Redrob AI Hackathon – India.Runs Data & AI Challenge.
+
+We thank the organizers for providing the dataset, evaluation framework, and competition guidelines that made this project possible.
 
 ---
 
