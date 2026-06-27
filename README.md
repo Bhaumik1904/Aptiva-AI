@@ -7,17 +7,26 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.32%2B-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3%2B-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
-[![License](https://img.shields.io/badge/License-MIT-22C55E?style=flat-square)](LICENSE)
 
 </div>
 
 ---
 
+## Live Demo
+
+**Live Streamlit Demo**  
+https://aptiva-ai.streamlit.app/
+
+**GitHub Repository**  
+https://github.com/Bhaumik1904/Aptiva-AI
+
+---
+
 ## Executive Summary
 
-APTIVA AI is an intelligent candidate discovery and ranking engine purpose-built for the Redrob AI Hackathon challenge. Given a pool of 100,000 candidates, it identifies and ranks the Top-100 most qualified individuals for a **Senior AI Engineer** role using a deterministic, multi-component scoring pipeline that runs entirely on CPU in under 100 seconds.
+APTIVA AI is an intelligent candidate discovery and ranking engine purpose-built for the Redrob AI Hackathon challenge. Given a pool of 100,000 candidates, it identifies and ranks the Top-100 most qualified individuals for a **Senior AI Engineer** role using a deterministic, multi-component scoring pipeline. The ranking pipeline is optimized for CPU-only execution and is designed to satisfy the competition runtime constraint of under five minutes.
 
-The system is designed around a single design principle: **a candidate should rank high only if they are genuinely qualified** — not because they stuffed keywords, not because they have high behavioral signals, and not because the ranking formula can be gamed. Every component of the scoring engine exists to enforce this principle.
+The system is designed around a single core principle: **a candidate should rank high only if they are genuinely qualified** — not because they stuffed keywords, not because they have high behavioral signals, and not because the ranking formula can be gamed. Every component of the scoring engine exists to enforce this principle.
 
 **Verified ranking quality on a 30-candidate expert-annotated ground truth:**
 
@@ -29,9 +38,78 @@ The system is designed around a single design principle: **a candidate should ra
 | **Precision@10** | **1.0000** | 5% |
 | MRR | 1.0000 | — |
 | Recall@50 | 1.0000 | — |
-| Runtime (100K candidates) | **~100 seconds** | ≤ 300s constraint |
 
 > *Precision@10 = 1.000 confirms zero non-AI/ML candidates in the Top 10. MRR = 1.000 confirms the #1 ranked candidate is unambiguously relevant.*
+
+---
+
+## Hosted Demo
+
+The application is fully deployed and accessible on Streamlit Cloud at:  
+👉 **[https://aptiva-ai.streamlit.app/](https://aptiva-ai.streamlit.app/)**
+
+**Automatic Demo Mode:**  
+Please note that the hosted Streamlit application automatically runs in **Demo Mode** using the official sample dataset (50 candidates). This is because the complete 100,000-candidate dataset cannot be hosted on GitHub or Streamlit Cloud due to file size limitations. 
+
+- **The ranking engine remains exactly the same.** 
+- **Demo Mode activation is automatic.** 
+- **Local execution with the official dataset automatically switches to Production Mode.**
+
+This ensures that judges can fully experience the UI and the analytics dashboards online without compromising the integrity or functionality of the actual ranking pipeline.
+
+---
+
+## Application Preview
+
+### Rankings Dashboard
+> Screenshot Placeholder
+
+### AI Analysis
+> Screenshot Placeholder
+
+### Candidate Profile
+> Screenshot Placeholder
+
+### Judge Mode
+> Screenshot Placeholder
+
+### Analytics Dashboard
+> Screenshot Placeholder
+
+---
+
+## Export Options
+
+The application supports two independent data exports designed for different audiences and workflows.
+
+### Recruiter Report
+This export provides a comprehensive, recruiter-friendly overview of the candidate pool exactly as it appears in the UI. It includes:
+- Rank
+- Candidate ID
+- Hireability
+- Recommendation
+- Title
+- Experience
+- Location
+- Notice Period
+- Open to Work
+
+This export is intended directly for recruiters and hiring managers to facilitate immediate evaluation and outreach.
+
+### Submission CSV
+This export generates the official Redrob AI Hackathon submission file. It strictly contains only the four required columns in the exact prescribed order:
+- `candidate_id`
+- `rank`
+- `score`
+- `reasoning`
+
+To ensure absolute competition compliance, a rigorous validation pipeline runs automatically before download. This validates that:
+- Exactly 100 candidate rows are present.
+- Required columns are properly ordered.
+- No duplicate candidate IDs exist.
+- Ranks are strictly sequential from 1 to 100.
+
+*Note: Demo Mode intentionally disables this export because the official sample dataset contains only 50 candidates, which naturally fails the strict 100-candidate validation requirement. The Recruiter Report remains fully functional in Demo Mode.*
 
 ---
 
@@ -55,7 +133,7 @@ APTIVA AI uses a **7-component weighted scoring pipeline** with a **15-signal be
 
 The pipeline is deterministic, interpretable, and runs without any network calls, GPU, or external APIs during ranking. Every decision is explainable to a recruiter.
 
-```
+```text
 100,000 candidates
        │
        ▼
@@ -95,26 +173,28 @@ The pipeline is deterministic, interpretable, and runs without any network calls
 
 ---
 
-## System Architecture
+## Repository Structure
 
-```
+```text
 APTIVA AI/
-│
-├── rank.py                   Primary deliverable — CLI ranker
-├── app.py                    Streamlit 6-page interactive demo
-├── evaluate.py               Ranking quality evaluation (NDCG, MAP, P@K, MRR)
-├── config.yaml               Feature flags and runtime settings
-├── requirements.txt          Python dependencies
+├── app.py                # Streamlit application entry point
+├── rank.py               # CLI ranking engine
+├── evaluate.py           # Ranking quality evaluation script
+├── core/                 # Core scoring engine and algorithms
+├── ui/                   # Streamlit UI pages and components
+├── evaluation/           # Evaluation metrics and ground truth
+├── data/                 # Dataset directory
+├── requirements.txt      # Project dependencies
+└── README.md             # Project documentation
+```
+
+### Detailed Architecture
+
+```text
+APTIVA AI/
 │
 ├── core/                     Scoring engine
 │   ├── jd_config.py          JD feature vector — single source of truth
-│   │                           · 50 title scores (0.0–1.0)
-│   │                           · 26 core required skills
-│   │                           · 30 bonus skills
-│   │                           · Experience targets (5–9yr, sweet spot 6–8yr)
-│   │                           · 14 preferred locations
-│   │                           · 15 consulting firm penalisers
-│   │                           · 50 TF-IDF career keywords
 │   ├── scorer.py             7 component scoring functions + final combiner
 │   ├── tfidf_engine.py       TF-IDF career substance index (sparse, efficient)
 │   ├── behavioral.py         15-signal behavioral multiplier
@@ -161,7 +241,7 @@ APTIVA AI seamlessly supports dual-environment execution with zero configuration
 
 ### Final Score Formula
 
-```
+```text
 Final Score = min(1.0, Base Score × Behavioral Multiplier)
 
 Base Score = Σ (weight_i × component_score_i)
@@ -194,7 +274,7 @@ The behavioral multiplier (range: **0.75× – 1.15×**) modulates the base scor
 
 A domain relevance score is computed from the three domain-aware components (Title, Skills, Career) normalized by their combined weight:
 
-```
+```text
 domain_relevance = (0.30×title + 0.25×skills + 0.20×career) / 0.75
 ```
 
@@ -204,11 +284,11 @@ If `domain_relevance < 0.01`, the final score is **capped at 0.15**, ensuring th
 
 ---
 
-## Why Two Scores? Final Score vs Hireability Index™
+## Why Two Scores? Final Score vs APTIVA AI Hireability Index™
 
 APTIVA AI surfaces two distinct scores to serve two different audiences:
 
-| | Final Score | Hireability Index™ |
+| | Final Score | APTIVA AI Hireability Index™ |
 |---|---|---|
 | **Range** | 0.0 – 1.0 | 0 – 100 |
 | **Purpose** | **Ranking metric** — determines submission order | **Trust metric** — secondary human-readable signal |
@@ -217,7 +297,7 @@ APTIVA AI surfaces two distinct scores to serve two different audiences:
 | **Components** | 7 weighted + behavioral multiplier | Technical Fit (35%) + Career (25%) + Behavior (20%) + Availability (10%) + Trust (10%) |
 | **Interpretability** | Normalized score optimized for NDCG | Decomposable 5-dimension trust signal |
 
-The Hireability Index™ was designed because the Final Score (optimized for ranking) is not intuitive to a recruiter. A score of 0.87 is meaningless to a hiring manager; a Hireability of 82/100 with a "Strong Hire" badge is immediately actionable.
+The APTIVA AI Hireability Index™ was designed because the Final Score (optimized for algorithmic ranking) is not always intuitive to a recruiter. A score of 0.87 is meaningless to a hiring manager; a Hireability of 82/100 with a "Strong Hire" badge is immediately actionable.
 
 ---
 
@@ -260,7 +340,7 @@ python evaluate.py \
 
 | Constraint | Requirement | APTIVA AI Status |
 |---|---|---|
-| **Runtime** | ≤ 300 seconds (5 minutes) | ✅ ~100 seconds on 100K candidates |
+| **Runtime** | ≤ 300 seconds (5 minutes) | ✅ Designed to satisfy constraint |
 | **CPU only** | No GPU during ranking | ✅ Fully deterministic, CPU-optimized |
 | **Memory** | ≤ 16 GB RAM | ✅ TF-IDF uses sparse CSR matrices |
 | **Network** | No external calls during ranking | ✅ All scoring is local; Gemini is offline-only |
@@ -268,6 +348,7 @@ python evaluate.py \
 | **Honeypots** | Excessive honeypots in Top 100 → disqualification | ✅ Precision@10 = 1.000, gate validated |
 
 **Runtime breakdown (100,000 candidates):**
+*(Based on local benchmarking)*
 
 | Phase | Time |
 |---|---|
@@ -276,7 +357,7 @@ python evaluate.py \
 | Scoring all 100K candidates | ~35s |
 | Top-100 selection + reasoning | ~5s |
 | CSV write | ~1s |
-| **Total** | **~94–105s** |
+| **Total Benchmark** | **~94–105s** |
 
 ---
 
@@ -295,7 +376,7 @@ The scoring system was designed from the ground up to resist the specific advers
 
 Most ranking systems use either TF-IDF or skill matching. APTIVA AI uses both in a calibrated hybrid:
 
-```
+```text
 career_score = 0.7 × TF-IDF(career_text, JD_keywords)
              + 0.3 × skill_relevance_score
              + 0.08 × product_company_bonus
@@ -304,9 +385,9 @@ career_score = 0.7 × TF-IDF(career_text, JD_keywords)
 
 The 70:30 split was calibrated on the sample dataset. TF-IDF provides broader semantic coverage of career history; skill relevance provides precision on exact JD requirements.
 
-### 3. Hireability Index™
+### 3. APTIVA AI Hireability Index™
 
-A proprietary 5-dimension trust metric that converts the algorithmic Final Score into a human-readable 0–100 score with named sub-components (Technical Fit, Career Relevance, Behavior Signals, Availability, Trust Score). This is the output seen by recruiters in the demo, not the raw optimization metric.
+A dedicated 5-dimension trust metric that converts the algorithmic Final Score into a human-readable 0–100 score with named sub-components (Technical Fit, Career Relevance, Behavior Signals, Availability, Trust Score). This is the output seen by recruiters in the demo, avoiding raw optimization metrics.
 
 ### 4. Relevance Gate
 
@@ -320,7 +401,7 @@ Unlike most hackathon submissions, APTIVA AI includes a formal Information Retri
 
 ## Demo — 6-Page Interactive Application
 
-Run the demo:
+Run the demo locally:
 ```bash
 streamlit run app.py
 ```
@@ -329,7 +410,7 @@ streamlit run app.py
 
 | Time | Page | What to show |
 |---|---|---|
-| 0–20s | **Rankings** | Rankings table loads automatically. Point out Hireability™ column, Recommendation badges, download button. |
+| 0–20s | **Rankings** | Rankings table loads automatically. Point out Hireability™ column, Recommendation badges, download buttons. |
 | 20–40s | **AI Analysis** | Click a top candidate. Show the Hireability gauge, radar chart, score breakdown bar chart, and skill coverage tags. |
 | 40–60s | **Judge Mode** | Switch to Judge Mode. Show the Verdict banner (Strong Hire / Hire), Why Recommended, Risk Factors, Final Verdict box. |
 | 60–80s | **Compare** | Add two candidates and show the side-by-side comparison. |
@@ -366,7 +447,7 @@ pip install -r requirements.txt
 ### Dataset Setup
 
 Place the hackathon dataset ZIP in the `data/` directory:
-```
+```text
 data/redrob_hackathon_dataset.zip
 ```
 
@@ -472,9 +553,26 @@ The current architecture is optimized for the hackathon's strict compute constra
 
 ---
 
+## Competition Compliance
+
+- [x] CPU-only execution
+- [x] Deterministic ranking
+- [x] No external API calls during ranking
+- [x] Official submission CSV generation
+- [x] Recruiter report export
+- [x] Streamlit Cloud deployment
+- [x] Source code included
+- [x] requirements.txt included
+- [x] README included
+- [x] Reproducible execution steps
+- [x] Demo Mode support
+- [x] Optional Gemini enrichment performed only offline
+
+---
+
 ## Dependencies
 
-```
+```text
 streamlit>=1.32.0       # Interactive demo
 pandas>=2.0.0           # Data handling
 numpy>=1.24.0           # Numerical operations
