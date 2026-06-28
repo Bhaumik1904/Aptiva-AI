@@ -10,7 +10,7 @@ submission.csv
 # Keep sample JSON and documentation
 !data/sample_candidates.json
 !data/candidate_schema.json
-!data/submission_metadata_template.yaml
+data/submission_metadata_template.yaml
 
 # Python
 __pycache__/

@@ -7,47 +7,57 @@
 # ============================================================================
 # Team identity
 # ============================================================================
-team_name: "your-team-name-here"  # Used in leaderboard and announcements
+team_name: "Cyber Shift"  # Used in leaderboard and announcements
 
 primary_contact:
-  name: "Full Name"
-  email: "primary@example.com"   # Used for all organizer communication
-  phone: "+91-XXXXXXXXXX"        # Used for top-50 / top-10 outreach
+  name: "Bhaumik Hinunia"
+  email: "bhaumikhinunia019@gmail.com"   # Used for all organizer communication
+  phone: "+91-9521144404"        # Used for top-50 / top-10 outreach
 
 team_members:
-  - name: "Member 1 Full Name"
-    email: "member1@example.com"
-    role: "ML Engineer"          # Optional, e.g. "Team Lead", "Backend", "Data"
-  - name: "Member 2 Full Name"
-    email: "member2@example.com"
-    role: "Data Engineer"
+  - name: "Bhaumik Hinunia"
+    email: "bhaumikhinunia019@gmail.com"
+    role: "Team Lead • ML Engineer • Full Stack Developer"          # Optional, e.g. "Team Lead", "Backend", "Data"
+  - name: "Harsh Dathik"
+    email: "harshdathik2006@gmail.com"
+    role: "AI Engineer • Evaluation & Testing"
+  - name: "Manya Srivastava"
+    email: "manya_srivastava@srmap.edu.in"
+    role: "UI/UX Designer • Documentation"
+  - name: "Tanuj Choudhary"
+    email: "tanuj162007@gmail.com"
+    role: "Research • Quality Assurance"
   # Add more members as needed; solo participants list just one member
 
 # ============================================================================
 # Code and reproducibility
 # ============================================================================
-github_repo: "https://github.com/YOUR_USERNAME/YOUR_REPO"
+github_repo: "https://github.com/Bhaumik1904/Aptiva-AI"
 # Required. Must be reachable. Private repos OK if you can grant organizer
 # access at Stage 3 (the email to add will be communicated then).
 
-sandbox_link: "https://huggingface.co/spaces/YOUR_USERNAME/redrob-ranker"
+sandbox_link: "https://aptiva-ai.streamlit.app/"
 # Required. A working hosted environment where the ranker can be run on a small
 # candidate sample. See Section 10.5 of submission_spec.md for acceptable
 # platforms (HuggingFace Spaces, Streamlit Cloud, Replit, Colab, Docker, Binder).
 
-reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
-# The single command that produces submission.csv from candidates.jsonl.
+reproduce_command: |
+  # CLI Pipeline (generates .xlsx directly)
+  python rank.py --candidates data/candidates.jsonl --out submission.xlsx
+  
+  # Interactive Web Application
+  streamlit run app.py
 # Should run end-to-end within 5 minutes on CPU with 16GB RAM and no network.
 
 # ============================================================================
 # Compute environment
 # ============================================================================
 compute:
-  platform: "MacBook Pro M2"                    # Or: "AWS EC2 c5.4xlarge", "Local Linux box", etc.
+  platform: "Local Windows Development Environment"             # Or: "AWS EC2 c5.4xlarge", "Local Linux box", etc.
   cpu_cores: 8                                  # Number of CPU cores used
   ram_gb: 16                                    # Available RAM in GB
-  python_version: "3.11.4"                      # python --version
-  os: "macOS 14.2"                              # Or "Ubuntu 22.04 LTS", etc.
+  python_version: "3.11.6"                        # python --version
+  os: "Windows 11"                              # Or "Ubuntu 22.04 LTS", etc.
   uses_gpu_for_inference: false                 # Must be false — see compute constraints
   has_network_during_ranking: false             # Must be false — no API calls during ranking
   pre_computation_required: false               # true if you pre-compute embeddings or train models offline
@@ -60,30 +70,21 @@ compute:
 # may verify these declarations against your code; declarations that contradict
 # your code or your interview are flagged.
 ai_tools_used:
-  - "Claude"        # e.g. for architecture discussion, code review
-  - "GitHub Copilot"  # e.g. for autocomplete
+  - "ChatGPT"
+  - "Claude"
+  - "Gemini"
   # Other options: "ChatGPT", "Cursor", "Gemini", "Codeium", "Other", "None"
 
 ai_usage_summary: |
-  Briefly describe how AI tools were used. Examples:
-  - "Used Claude for code review and architectural discussion. Used Copilot for autocomplete.
-     No candidate data was fed to any LLM."
-  - "Used ChatGPT to debug Python issues and Cursor for refactoring."
-  - "No AI tools used."
+  We utilized ChatGPT, Claude, and Gemini strictly as development assistants to support brainstorming, debugging, documentation, code review, and UI refinement.
+  
+  All implementation, integration, testing, and engineering decisions were performed entirely by the team. The candidate ranking algorithm is fully deterministic, CPU-only, and does not use LLMs during inference or scoring.
 
 # ============================================================================
 # Approach summary (optional but recommended)
 # ============================================================================
 methodology_summary: |
-  ≤200 word summary of your approach. Strongly recommended.
-
-  Example:
-  "Rule-based ranker with explicit reasoning capture. Five scoring components
-  (skills, title+career, experience years, location, education) combined with
-  a multiplicative behavioral-signal modifier. The title component is the
-  decisive signal against keyword-stuffer traps; an endorsement-and-duration
-  trust multiplier on skills catches lazy keyword stuffing. Runtime is ~10
-  seconds for 50K candidates on CPU."
+  We developed a highly optimized, multi-signal ranking engine using deterministic CPU-only evaluation. We combine a TF-IDF based retrieval system with explicit explainable AI reasoning. The core of our solution is the Hireability Index, capturing holistic candidate value without relying on LLMs for core ranking decisions. A sophisticated evaluation framework ensures fairness and precision, while our interactive Streamlit deployment provides a recruiter-focused interface to analyze signals in real time.
 
 # ============================================================================
 # Declarations
