@@ -5,9 +5,9 @@ APTIVA AI — Redrob Hackathon Ranking Engine
 Primary deliverable for the India.Runs Data & AI Challenge.
 
 Usage:
-    python rank.py --candidates ./data/candidates.jsonl --out ./submission.csv
-    python rank.py --candidates ./data/sample_candidates.json --out ./submission.csv
-    python rank.py --candidates ./data/candidates.jsonl --out ./submission.csv --enrich-reasoning
+    python rank.py --candidates ./data/candidates.jsonl --out ./submission.xlsx
+    python rank.py --candidates ./data/sample_candidates.json --out ./submission.xlsx
+    python rank.py --candidates ./data/candidates.jsonl --out ./submission.xlsx --enrich-reasoning
 
 Constraints:
     CPU only | <=5 min | <=16 GB RAM | no network during ranking
@@ -19,7 +19,7 @@ Architecture:
     4. Score all candidates (vectorized cosine + per-candidate rules)
     5. Select top-100 via heapq.nlargest (O(n log 100))
     6. Generate reasoning (template or precomputed)
-    7. Write submission.csv
+    7. Write submission.xlsx
 """
 
 import argparse
@@ -150,8 +150,8 @@ def rank_candidates(
         except Exception as e:
             print(f"  [WARN] Enrichment failed ({e}), using template reasoning")
 
-    # -- Step 6: Write Submission CSV --------------------------------------
-    print(f"  Writing submission CSV to: {output_path}")
+    # -- Step 6: Write Submission XLSX --------------------------------------
+    print(f"  Writing submission XLSX to: {output_path}")
     out_path = Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -204,14 +204,14 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python rank.py --candidates data/candidates.jsonl --out submission.csv
-  python rank.py --candidates data/sample_candidates.json --out submission.csv
-  python rank.py --candidates data/candidates.jsonl --out submission.csv --enrich-reasoning
+  python rank.py --candidates data/candidates.jsonl --out submission.xlsx
+  python rank.py --candidates data/sample_candidates.json --out submission.xlsx
+  python rank.py --candidates data/candidates.jsonl --out submission.xlsx --enrich-reasoning
   python rank.py --auto                          # Auto-detect ZIP in data/
         """,
     )
     parser.add_argument("--candidates", help="Path to candidates.jsonl or sample_candidates.json")
-    parser.add_argument("--out", default="submission.csv", help="Output CSV path")
+    parser.add_argument("--out", default="submission.xlsx", help="Output CSV path")
     parser.add_argument("--top-n", type=int, default=100, help="Number of candidates to rank")
     parser.add_argument("--config", default="config.yaml", help="Config YAML path")
     parser.add_argument(

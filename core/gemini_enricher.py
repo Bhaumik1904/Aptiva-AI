@@ -4,7 +4,7 @@ OPTIONAL OFFLINE STEP. Never called during ranking.
 
 Workflow:
   1. Run rank.py -> get top-100 candidates
-  2. Run: python enrich_reasoning.py --submission submission.csv --candidates data/sample_candidates.json
+  2. Run: python enrich_reasoning.py --submission submission.xlsx --candidates data/sample_candidates.json
   3. Enriched reasoning saved to precomputed_reasonings.json
   4. On next rank.py run, reasoning.py auto-loads the enriched file
 

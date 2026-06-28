@@ -6,6 +6,7 @@ data/*.csv
 data/*.docx
 *.docx
 submission.csv
+submission.xlsx
 
 # Keep sample JSON and documentation
 !data/sample_candidates.json

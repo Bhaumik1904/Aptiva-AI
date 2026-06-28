@@ -41,12 +41,7 @@ sandbox_link: "https://aptiva-ai.streamlit.app/"
 # candidate sample. See Section 10.5 of submission_spec.md for acceptable
 # platforms (HuggingFace Spaces, Streamlit Cloud, Replit, Colab, Docker, Binder).
 
-reproduce_command: |
-  # CLI Pipeline (generates .xlsx directly)
-  python rank.py --candidates data/candidates.jsonl --out submission.xlsx
-  
-  # Interactive Web Application
-  streamlit run app.py
+reproduce_command: "python rank.py --candidates data/candidates.jsonl --out submission.xlsx"
 # Should run end-to-end within 5 minutes on CPU with 16GB RAM and no network.
 
 # ============================================================================

@@ -1,7 +1,7 @@
 =================================================================
   APTIVA AI — RANKING EVALUATION REPORT
 =================================================================
-  Predictions : submission.csv
+  Predictions : submission.xlsx
   Ground truth: evaluation/ground_truth_manual.csv
   Ranked candidates : 100
   Labelled in GT    : 30
