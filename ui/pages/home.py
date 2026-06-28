@@ -232,78 +232,94 @@ def render(state: dict):
         with col_dl2:
             submission_data = state["submission_csv"]
             
-            is_valid = True
-            error_msg = ""
+            # Detect Demo Mode based on total dataset size (sample dataset has exactly 50 candidates)
+            is_demo = state.get("total_candidates", 0) == 50
             
-            try:
-                import io, csv
-                reader = list(csv.reader(io.StringIO(submission_data)))
-                if not reader:
-                    is_valid = False
-                    error_msg = "CSV is empty."
-                else:
-                    header = reader[0]
-                    expected_header = ["candidate_id", "rank", "score", "reasoning"]
-                    if header != expected_header:
-                        is_valid = False
-                        error_msg = f"Invalid columns. Expected {expected_header}, got {header}."
-                    else:
-                        rows_data = reader[1:]
-                        if len(rows_data) != 100:
-                            is_valid = False
-                            error_msg = f"Expected exactly 100 candidates, got {len(rows_data)}."
-                        else:
-                            candidate_ids = set()
-                            for i, row in enumerate(rows_data):
-                                if len(row) != 4:
-                                    is_valid = False
-                                    error_msg = f"Row {i+1} does not have exactly 4 columns."
-                                    break
-                                
-                                cid, r_rank, r_score, r_reason = row
-                                
-                                if cid in candidate_ids:
-                                    is_valid = False
-                                    error_msg = f"Duplicate candidate_id found: {cid}."
-                                    break
-                                candidate_ids.add(cid)
-                                
-                                try:
-                                    if int(r_rank) != i + 1:
-                                        is_valid = False
-                                        error_msg = f"Rank values out of order. Expected {i+1}, got {r_rank}."
-                                        break
-                                except ValueError:
-                                    is_valid = False
-                                    error_msg = f"Invalid rank value at row {i+1}: {r_rank}."
-                                    break
-            except Exception as e:
-                is_valid = False
-                error_msg = f"Validation exception: {str(e)}"
-            
-            if is_valid:
-                import openpyxl
-                import io, csv
-                
-                wb = openpyxl.Workbook()
-                ws = wb.active
-                ws.title = "submission"
-                
-                csv_reader = csv.reader(io.StringIO(submission_data))
-                for row in csv_reader:
-                    ws.append(row)
-                    
-                excel_buffer = io.BytesIO()
-                wb.save(excel_buffer)
-                excel_data = excel_buffer.getvalue()
-                
-                st.download_button(
+            if is_demo:
+                st.info(
+                    "**Demo Mode:** The official sample dataset contains 50 candidates. "
+                    "The official competition submission XLSX requires the complete 100,000-candidate dataset "
+                    "and is therefore unavailable in Demo Mode."
+                )
+                st.button(
                     "⬇ Download Submission XLSX",
-                    data=excel_data,
-                    file_name=SUBMISSION_FILENAME,
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    disabled=True,
                     use_container_width=True,
+                    help="Submission XLSX is only available when running on the full 100,000-candidate dataset."
                 )
             else:
-                st.error(f"**Submission Validation Failed:** {error_msg}")
-                st.button("⬇ Download Submission XLSX", disabled=True, use_container_width=True)
+                is_valid = True
+                error_msg = ""
+                
+                try:
+                    import io, csv
+                    reader = list(csv.reader(io.StringIO(submission_data)))
+                    if not reader:
+                        is_valid = False
+                        error_msg = "CSV is empty."
+                    else:
+                        header = reader[0]
+                        expected_header = ["candidate_id", "rank", "score", "reasoning"]
+                        if header != expected_header:
+                            is_valid = False
+                            error_msg = f"Invalid columns. Expected {expected_header}, got {header}."
+                        else:
+                            rows_data = reader[1:]
+                            if len(rows_data) != 100:
+                                is_valid = False
+                                error_msg = f"Expected exactly 100 candidates, got {len(rows_data)}."
+                            else:
+                                candidate_ids = set()
+                                for i, row in enumerate(rows_data):
+                                    if len(row) != 4:
+                                        is_valid = False
+                                        error_msg = f"Row {i+1} does not have exactly 4 columns."
+                                        break
+                                    
+                                    cid, r_rank, r_score, r_reason = row
+                                    
+                                    if cid in candidate_ids:
+                                        is_valid = False
+                                        error_msg = f"Duplicate candidate_id found: {cid}."
+                                        break
+                                    candidate_ids.add(cid)
+                                    
+                                    try:
+                                        if int(r_rank) != i + 1:
+                                            is_valid = False
+                                            error_msg = f"Rank values out of order. Expected {i+1}, got {r_rank}."
+                                            break
+                                    except ValueError:
+                                        is_valid = False
+                                        error_msg = f"Invalid rank value at row {i+1}: {r_rank}."
+                                        break
+                except Exception as e:
+                    is_valid = False
+                    error_msg = f"Validation exception: {str(e)}"
+                
+                if is_valid:
+                    import openpyxl
+                    import io, csv
+                    
+                    wb = openpyxl.Workbook()
+                    ws = wb.active
+                    ws.title = "submission"
+                    
+                    csv_reader = csv.reader(io.StringIO(submission_data))
+                    for row in csv_reader:
+                        ws.append(row)
+                        
+                    excel_buffer = io.BytesIO()
+                    wb.save(excel_buffer)
+                    excel_data = excel_buffer.getvalue()
+                    
+                    st.download_button(
+                        "⬇ Download Submission XLSX",
+                        data=excel_data,
+                        file_name=SUBMISSION_FILENAME,
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        use_container_width=True,
+                    )
+                else:
+                    st.error(f"**Submission Validation Failed:** {error_msg}")
+                    st.button("⬇ Download Submission XLSX", disabled=True, use_container_width=True)
