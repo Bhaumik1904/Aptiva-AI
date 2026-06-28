@@ -525,10 +525,10 @@ def auto_run_ranking(loader: DatasetLoader):
     st.session_state["ranking_running"] = True
 
     # Stage 0 — dataset loading (renders before blocking call)
-    _render(0, 0.05, "~90 seconds")
+    _render(0, 0.05, "~190 seconds")
     time.sleep(0.08)
     # Stage 1 — TF-IDF indexing (bulk of wall-clock time)
-    _render(1, 0.10, "~80 seconds")
+    _render(1, 0.10, "~180 seconds")
 
     # ── blocking ranking call ─────────────────────────────────────────────
     result_data = None
