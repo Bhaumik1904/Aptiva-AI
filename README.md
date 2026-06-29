@@ -359,14 +359,16 @@ python evaluate.py \
 **Runtime breakdown (100,000 candidates):**
 *(Based on local benchmarking)*
 
+Processes 100,000 candidates in approximately 3 minutes on a local CPU-only development machine. Typical runtime: 165–180 seconds on CPU-only hardware (Python 3.11, 8 CPU cores, 16 GB RAM).
+
 | Phase | Time |
 |---|---|
-| Dataset load (JSONL parse) | ~8s |
-| TF-IDF corpus build + vectorize | ~45s |
-| Scoring all 100K candidates | ~35s |
-| Top-100 selection + reasoning | ~5s |
-| CSV write | ~1s |
-| **Total Benchmark** | **~94–105s** |
+| Dataset load (JSONL parse) | ~6s |
+| TF-IDF corpus build + vectorize | ~114s |
+| Scoring all 100K candidates | ~45s |
+| Top-100 selection + reasoning | ~1s |
+| XLSX write | ~1s |
+| **Total Benchmark** | **~165–180s** |
 
 ---
 
