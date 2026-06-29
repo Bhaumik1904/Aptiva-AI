@@ -43,7 +43,7 @@ Experience the APTIVA AI platform in under one minute:
 5. **Compare Candidates** side-by-side using the comparison tool.
 6. **Download Recruiter Report** directly from the Rankings Dashboard.
 
-*Note: The official Submission XLSX export becomes available only when running locally against the complete 100,000-candidate dataset.*
+*Note: The official Submission CSV export becomes available only when running locally against the complete 100,000-candidate dataset.*
 
 ---
 
@@ -105,7 +105,7 @@ This export provides a comprehensive, recruiter-friendly overview of the candida
 
 This export is intended directly for recruiters and hiring managers to facilitate immediate evaluation and outreach.
 
-### Submission XLSX
+### Submission CSV
 This export generates the official Redrob AI Hackathon submission file. It strictly contains only the four required columns in the exact prescribed order:
 - `candidate_id`
 - `rank`
@@ -177,7 +177,7 @@ The pipeline is deterministic, interpretable, and runs without any network calls
          │  Final Score
          ▼
       Top 100
-    submission.xlsx
+    submission.csv
 ```
 
 ---
@@ -302,7 +302,7 @@ APTIVA AI surfaces two distinct scores to serve two different audiences:
 | **Range** | 0.0 – 1.0 | 0 – 100 |
 | **Purpose** | **Ranking metric** — determines submission order | **Trust metric** — secondary human-readable signal |
 | **Audience** | Algorithm / evaluation system | Recruiter / hiring manager |
-| **Drives** | `submission.xlsx` rank column | Recommendation badge (Strong Hire / Hire / Maybe / Pass) |
+| **Drives** | `submission.csv` rank column | Recommendation badge (Strong Hire / Hire / Maybe / Pass) |
 | **Components** | 7 weighted + behavioral multiplier | Technical Fit (35%) + Career (25%) + Behavior (20%) + Availability (10%) + Trust (10%) |
 | **Interpretability** | Normalized score optimized for NDCG | Decomposable 5-dimension trust signal |
 
@@ -312,7 +312,7 @@ The APTIVA AI Hireability Index™ was designed because the Final Score (optimiz
 
 ## Ranking Quality — Self-Evaluated
 
-Evaluated using `evaluate.py` against **30 manually expert-annotated candidates** drawn from the actual submission.xlsx predictions.
+Evaluated using `evaluate.py` against **30 manually expert-annotated candidates** drawn from the actual submission.csv predictions.
 
 **Annotation methodology:**
 - Relevance scale: 0 = Irrelevant, 1 = Adjacent, 2 = Relevant, 3 = Highly Relevant
@@ -338,7 +338,7 @@ Evaluated using `evaluate.py` against **30 manually expert-annotated candidates*
 To reproduce:
 ```bash
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/ground_truth_manual.csv \
   --verbose
 ```
@@ -353,7 +353,7 @@ python evaluate.py \
 | **CPU only** | No GPU during ranking | ✅ Fully deterministic, CPU-optimized |
 | **Memory** | ≤ 16 GB RAM | ✅ TF-IDF uses sparse CSR matrices |
 | **Network** | No external calls during ranking | ✅ All scoring is local; Gemini is offline-only |
-| **Output** | Top-100, columns: candidate_id, rank, score, reasoning | ✅ `submission.xlsx` — exact format |
+| **Output** | Top-100, columns: candidate_id, rank, score, reasoning | ✅ `submission.csv` — exact format |
 | **Honeypots** | Excessive honeypots in Top 100 → disqualification | ✅ Precision@10 = 1.000, gate validated |
 
 **Runtime breakdown (100,000 candidates):**
@@ -367,7 +367,7 @@ Processes 100,000 candidates in approximately 3 minutes on a local CPU-only deve
 | TF-IDF corpus build + vectorize | ~114s |
 | Scoring all 100K candidates | ~45s |
 | Top-100 selection + reasoning | ~1s |
-| XLSX write | ~1s |
+| CSV write | ~1s |
 | **Total Benchmark** | **~165–180s** |
 
 ---
@@ -468,17 +468,17 @@ The application auto-extracts on first run. No manual extraction required.
 
 ## Usage
 
-### Generate submission.xlsx (Primary Deliverable)
+### Generate submission.csv (Primary Deliverable)
 
 ```bash
 # Standard run — explicit path
-python rank.py --candidates data/candidates.jsonl --out submission.xlsx
+python rank.py --candidates data/candidates.jsonl --out submission.csv
 
 # Auto-detect from ZIP
 python rank.py --auto
 
 # Custom Top-N and output path
-python rank.py --candidates data/candidates.jsonl --out results/my_submission.xlsx --top 100
+python rank.py --candidates data/candidates.jsonl --out results/my_submission.csv --top 100
 ```
 
 ### Run the Streamlit Demo
@@ -494,32 +494,32 @@ Opens at `http://localhost:8501`. Rankings load automatically on first visit.
 ```bash
 # Basic evaluation
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/ground_truth_manual.csv
 
 # Verbose (per-candidate relevance breakdown)
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/ground_truth_manual.csv \
   --verbose
 
 # Custom K values + save report
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/ground_truth_manual.csv \
   --k 10 25 50 \
   --out evaluation/my_report.txt
 
 # Output JSON metrics for scripting
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/ground_truth_manual.csv \
   --json
 ```
 
 ### Optional: Gemini Reasoning Enrichment
 
-Enhance the `reasoning` column in submission.xlsx with Gemini-generated narrative (offline, never called during ranking):
+Enhance the `reasoning` column in submission.csv with Gemini-generated narrative (offline, never called during ranking):
 
 ```bash
 # Windows
@@ -555,7 +555,7 @@ The current architecture is optimized for the hackathon's strict compute constra
 
 | Deliverable | File / Command | Description |
 |---|---|---|
-| **Ranked candidates** | `submission.xlsx` | Top-100 candidates: candidate_id, rank, score, reasoning |
+| **Ranked candidates** | `submission.csv` | Top-100 candidates: candidate_id, rank, score, reasoning |
 | **Ranking engine** | `python rank.py --auto` | CLI ranker — the primary submission artifact |
 | **Interactive demo** | `streamlit run app.py` | 6-page Streamlit application |
 | **Evaluation framework** | `python evaluate.py ...` | NDCG, MAP, P@K, MRR computation |
@@ -569,7 +569,7 @@ The current architecture is optimized for the hackathon's strict compute constra
 - [x] CPU-only execution
 - [x] Deterministic ranking
 - [x] No external API calls during ranking
-- [x] Official submission XLSX generation
+- [x] Official submission CSV generation
 - [x] Recruiter report export
 - [x] Streamlit Cloud deployment
 - [x] Source code included

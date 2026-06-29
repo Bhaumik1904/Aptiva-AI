@@ -20,30 +20,30 @@ Zero dependency on the ranking engine — evaluation is fully independent.
 ```bash
 # Step 1: Evaluate submission against sample labels
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/sample_ground_truth.csv
 
 # Step 2: Verbose output (per-candidate relevance breakdown)
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/sample_ground_truth.csv \
   --verbose
 
 # Step 3: Save report to file
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/sample_ground_truth.csv \
   --out evaluation/report.txt
 
 # Step 4: Custom K values
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/sample_ground_truth.csv \
   --k 5 10 25 50
 
 # Step 5: JSON metrics output (for scripting)
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/sample_ground_truth.csv \
   --json
 ```
@@ -85,11 +85,11 @@ CAND_0000002,0,Operations Manager,not relevant
 
 ### Option A — Manual Expert Annotation (Gold Standard)
 
-1. Take the top-20 candidates from your submission.xlsx
+1. Take the top-20 candidates from your submission.csv
 2. For each candidate, review: title, skills, career history, years of experience
 3. Assign a relevance score 0–3 using the scale above
 4. Save as `evaluation/my_ground_truth.csv`
-5. Run: `python evaluate.py --predictions submission.xlsx --ground-truth evaluation/my_ground_truth.csv`
+5. Run: `python evaluate.py --predictions submission.csv --ground-truth evaluation/my_ground_truth.csv`
 
 **Estimated time:** 30–45 minutes for 20 candidates, 1.5 hours for 50 candidates.
 
@@ -109,7 +109,7 @@ python evaluation/create_sample_labels.py
 
 ```bash
 python evaluate.py \
-  --predictions submission.xlsx \
+  --predictions submission.csv \
   --ground-truth evaluation/sample_ground_truth.csv
 ```
 
